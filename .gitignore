@@ -20,6 +20,9 @@ course/assets/captions/
 *.gdoc
 desktop.ini
 
+# Environment / secrets
+.env
+
 # OS
 .DS_Store
 Thumbs.db

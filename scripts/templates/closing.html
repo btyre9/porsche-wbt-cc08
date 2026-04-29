@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1920">
+  <title>{{SLIDE_TITLE}}</title>
+  <link rel="stylesheet" href="../assets/css/pds-tokens.css">
+  <link rel="stylesheet" href="../assets/css/slide-base.css">
+  <link rel="stylesheet" href="../assets/css/animations.css">
+  <script>(function(){function s(){document.documentElement.style.setProperty('--scale',Math.min(window.innerWidth/1920,window.innerHeight/920));}s();window.addEventListener('resize',s);})();</script>
+  <style>
+
+    .slide {
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* ── Full-width content area ──────────────────────────────────────────── */
+    .closing-layout {
+      display: grid;
+      grid-template-columns: 1fr 640px;
+      width: 1920px;
+      height: 920px;
+      background: #0A0A0D;
+    }
+
+    /* ── Left text column ─────────────────────────────────────────────────── */
+    .closing-text {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      padding: 80px 80px 64px 120px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .red-accent {
+      width: 120px; height: 8px;
+      background: var(--pds-accent);
+      margin-bottom: 22px;
+    }
+
+    .eyebrow {
+      font-size: 13px;
+      font-weight: var(--pds-font-weight-bold);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--pds-accent);
+      margin: 0 0 16px 0;
+    }
+
+    .headline {
+      font-size: 56px;
+      font-weight: var(--pds-font-weight-bold);
+      line-height: 1.05;
+      color: var(--pds-text-primary);
+      margin: 0 0 28px 0;
+      max-width: 920px;
+    }
+
+    .summary-body {
+      font-size: 22px;
+      color: rgba(251, 252, 255, 0.74);
+      line-height: 1.5;
+      margin: 0 0 40px 0;
+      max-width: 840px;
+    }
+
+    /* "Up Next" banner */
+    .up-next {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 24px;
+      background: rgba(251,252,255,0.05);
+      border: 1px solid rgba(251,252,255,0.12);
+      max-width: 760px;
+    }
+    .up-next__icon {
+      flex-shrink: 0;
+      width: 36px; height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(213,0,28,0.14);
+      border: 1px solid rgba(213,0,28,0.30);
+      font-size: 16px;
+      color: var(--pds-accent);
+    }
+    .up-next__label {
+      display: block;
+      font-size: 11px;
+      font-weight: var(--pds-font-weight-bold);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--pds-accent);
+      margin-bottom: 4px;
+    }
+    .up-next__body {
+      font-size: 15px;
+      color: var(--pds-text-secondary);
+      line-height: 1.42;
+      margin: 0;
+    }
+
+    /* ── Right image column ───────────────────────────────────────────────── */
+    .closing-image {
+      position: relative;
+      overflow: hidden;
+      border-left: 1px solid rgba(255,255,255,0.08);
+    }
+    .img-placeholder {
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        -45deg,
+        #0E0E12 0px, #0E0E12 24px,
+        #141418 24px, #141418 48px
+      );
+    }
+    .closing-image img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      z-index: 1;
+    }
+    .closing-image::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      background:
+        linear-gradient(180deg, rgba(10,10,13,0.08) 0%, rgba(10,10,13,0.52) 100%),
+        linear-gradient(90deg, rgba(10,10,13,0.32) 0%, transparent 40%);
+    }
+
+    /* ── Entrance animations ─────────────────────────────────────────────── */
+    .anim-block {
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .anim-block.is-visible { opacity: 1; transform: none; }
+
+  </style>
+</head>
+<body>
+
+<div class="slide" data-slide-id="{{SLIDE_ID}}">
+  <div class="closing-layout">
+
+    <!-- Left: text content -->
+    <div class="closing-text">
+      <div class="red-accent anim-block" id="el-accent"></div>
+      <p class="eyebrow anim-block" id="el-eyebrow">{{EYEBROW}}</p>
+      <h2 class="headline anim-block" id="el-headline">{{SLIDE_TITLE}}</h2>
+      <p class="summary-body anim-block" id="el-body">{{ON_SCREEN_TEXT}}</p>
+      <div class="up-next anim-block" id="el-next">
+        <div class="up-next__icon">&#8594;</div>
+        <div>
+          <span class="up-next__label">Up Next</span>
+          <p class="up-next__body">In the next section, you'll complete a short assessment to confirm your understanding.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: image -->
+    <div class="closing-image anim-block" id="el-image">
+      <div class="img-placeholder" aria-hidden="true"></div>
+      {{IMAGE_HTML}}
+    </div>
+
+  </div>
+</div>
+
+<script src="../assets/vendor/gsap/gsap.min.js"></script>
+<script src="../assets/vendor/slide-pause.js"></script>
+<script>
+(function () {
+
+  var ids    = ['el-accent', 'el-eyebrow', 'el-headline', 'el-body', 'el-next', 'el-image'];
+  var delays = [0, 90, 180, 300, 460, 240];
+
+  ids.forEach(function (id, i) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    setTimeout(function () { el.classList.add('is-visible'); }, delays[i]);
+  });
+
+}());
+</script>
+
+</body>
+</html>

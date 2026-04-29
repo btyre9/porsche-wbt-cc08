@@ -1,0 +1,303 @@
+<!--
+  Reusable Component: Audio-Synced Modal With Red Edge Progress
+  Location: scripts/templates/modal-audio-progress.html
+
+  Usage:
+  1) Copy the <style>, markup, and script into your slide.
+  2) Call createAudioSyncedModal({ ... }) once on load.
+  3) Call instance.open(itemData) when a trigger is clicked.
+
+  Required itemData shape:
+  {
+    id: 'UniqueId',
+    label: 'Body Language',
+    pct: 55,
+    color: '#D5001C',
+    icon: '../assets/images/body-language.png',
+    audio: '../assets/audio/vo/SLD_xxx_CLICK_BodyLanguage.mp3',
+    bullets: ['Bullet 1', 'Bullet 2']
+  }
+-->
+
+<style>
+  .audio-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    background: rgba(0, 0, 0, 0.78);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .audio-modal-overlay.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .audio-modal-card {
+    position: relative;
+    width: 980px;
+    background: #17171b;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 14px;
+    overflow: hidden;
+    transform: translateY(28px) scale(0.97);
+    transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+  }
+  .audio-modal-overlay.is-open .audio-modal-card {
+    transform: none;
+  }
+
+  .audio-modal-progress-track {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 8px;
+    background: rgba(213, 0, 28, 0.20);
+    border-right: 1px solid rgba(213, 0, 28, 0.45);
+    z-index: 2;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .audio-modal-progress-fill {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 0%;
+    background: #D5001C;
+    transition: height 0.12s linear;
+    box-shadow: 0 0 10px rgba(213, 0, 28, 0.5);
+  }
+
+  .audio-modal-body {
+    padding: 52px 68px 64px 86px;
+  }
+
+  .audio-modal-close {
+    position: absolute;
+    top: 22px;
+    right: 22px;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    color: rgba(255, 255, 255, 0.55);
+    font-family: 'Porsche Next TT', Arial, sans-serif;
+    font-size: 22px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+  }
+  .audio-modal-close:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.40);
+    color: #fff;
+  }
+
+  .audio-modal-hero {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    margin-bottom: 36px;
+  }
+  .audio-modal-icon {
+    width: 112px;
+    height: 112px;
+    object-fit: contain;
+    flex-shrink: 0;
+  }
+  .audio-modal-pct {
+    font-family: 'Porsche Next TT', Arial, sans-serif;
+    font-size: 96px;
+    font-weight: 700;
+    letter-spacing: -4px;
+    line-height: 1;
+  }
+  .audio-modal-label {
+    font-family: 'Porsche Next TT', Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.45);
+  }
+
+  .audio-modal-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+    margin: 0 0 30px;
+  }
+
+  .audio-modal-bullets {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .audio-modal-bullets li {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    font-family: 'Porsche Next TT', Arial, sans-serif;
+    font-size: 18px;
+    font-weight: 300;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.82);
+  }
+  .audio-modal-dot {
+    flex-shrink: 0;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    margin-top: 11px;
+  }
+</style>
+
+<div class="audio-modal-overlay" id="audio-modal" role="dialog" aria-modal="true" aria-labelledby="audio-modal-label">
+  <div class="audio-modal-card">
+    <div class="audio-modal-progress-track">
+      <div class="audio-modal-progress-fill" id="audio-modal-progress-fill"></div>
+    </div>
+
+    <div class="audio-modal-body">
+      <button class="audio-modal-close" id="audio-modal-close" aria-label="Close">&times;</button>
+
+      <div class="audio-modal-hero">
+        <img class="audio-modal-icon" id="audio-modal-icon" src="" alt="" aria-hidden="true">
+        <div>
+          <div class="audio-modal-pct" id="audio-modal-pct"></div>
+          <div class="audio-modal-label" id="audio-modal-label"></div>
+        </div>
+      </div>
+
+      <div class="audio-modal-divider"></div>
+      <ul class="audio-modal-bullets" id="audio-modal-bullets"></ul>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  function byId(id) { return document.getElementById(id); }
+
+  window.createAudioSyncedModal = function (options) {
+    var opts = options || {};
+    var modal = byId(opts.modalId || 'audio-modal');
+    var closeBtn = byId(opts.closeId || 'audio-modal-close');
+    var iconEl = byId(opts.iconId || 'audio-modal-icon');
+    var pctEl = byId(opts.pctId || 'audio-modal-pct');
+    var labelEl = byId(opts.labelId || 'audio-modal-label');
+    var bulletsEl = byId(opts.bulletsId || 'audio-modal-bullets');
+    var progressFill = byId(opts.progressId || 'audio-modal-progress-fill');
+
+    var raf = null;
+    var mirrorAudio = null;
+    var fallbackStart = 0;
+
+    function startProgress(audioSrc) {
+      progressFill.style.transition = 'none';
+      progressFill.style.height = '0%';
+
+      if (raf) cancelAnimationFrame(raf);
+      if (mirrorAudio) {
+        try { mirrorAudio.pause(); } catch (_) {}
+        mirrorAudio = null;
+      }
+      fallbackStart = performance.now();
+
+      if (audioSrc) {
+        try {
+          mirrorAudio = new Audio(audioSrc);
+          mirrorAudio.preload = 'auto';
+          mirrorAudio.muted = true;
+          mirrorAudio.playsInline = true;
+          mirrorAudio.play().catch(function () {});
+        } catch (_) {}
+      }
+
+      (function tick() {
+        if (!modal.classList.contains('is-open')) return;
+
+        var pct = 0;
+        var hasTiming = false;
+
+        if (mirrorAudio) {
+          var t = Number(mirrorAudio.currentTime) || 0;
+          var dur = Number(mirrorAudio.duration) || 0;
+          if (dur > 0) {
+            hasTiming = true;
+            pct = Math.min(t / dur * 100, 100);
+            if (mirrorAudio.ended) pct = 100;
+          }
+        }
+
+        if (!hasTiming) {
+          pct = Math.min((performance.now() - fallbackStart) / 15000 * 100, 98);
+        }
+
+        progressFill.style.height = pct + '%';
+        raf = requestAnimationFrame(tick);
+      }());
+    }
+
+    function stopProgress() {
+      if (raf) { cancelAnimationFrame(raf); raf = null; }
+      if (mirrorAudio) {
+        try { mirrorAudio.pause(); } catch (_) {}
+        mirrorAudio = null;
+      }
+      progressFill.style.height = '0%';
+    }
+
+    function open(item) {
+      var data = item || {};
+      iconEl.src = data.icon || '';
+      pctEl.textContent = String(data.pct || '') + '%';
+      pctEl.style.color = data.color || '#D5001C';
+      labelEl.textContent = String(data.label || '').toUpperCase();
+
+      var bullets = Array.isArray(data.bullets) ? data.bullets : [];
+      bulletsEl.innerHTML = bullets.map(function (b) {
+        return '<li><span class="audio-modal-dot" style="background:' + (data.color || '#D5001C') + '"></span><span>' + b + '</span></li>';
+      }).join('');
+
+      modal.classList.add('is-open');
+      closeBtn.focus();
+      startProgress(data.audio || '');
+
+      if (typeof opts.onOpen === 'function') opts.onOpen(data);
+    }
+
+    function close() {
+      modal.classList.remove('is-open');
+      stopProgress();
+      if (typeof opts.onClose === 'function') opts.onClose();
+    }
+
+    closeBtn.addEventListener('click', close);
+    modal.addEventListener('click', function (e) {
+      if (e.target === modal) close();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && modal.classList.contains('is-open')) close();
+    });
+
+    return {
+      open: open,
+      close: close
+    };
+  };
+}());
+</script>

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+  ╔══════════════════════════════════════════════════════════════════════════╗
+  ║  TEMPLATE_InfoModal.html — Porsche WBT reusable info-modal component    ║
+  ║                                                                          ║
+  ║  WHAT THIS DOES                                                          ║
+  ║  A dark modal card triggered by any clickable element (bar, tile,        ║
+  ║  button…).  Each card shows:                                             ║
+  ║    • Colored accent stripe (top)                                         ║
+  ║    • Section icon  +  large stat / percentage                            ║
+  ║    • Label (uppercase, small caps)                                       ║
+  ║    • Bullet list                                                         ║
+  ║    • Audio progress bar (reads CourseRuntime while audio plays)          ║
+  ║                                                                          ║
+  ║  HOW TO USE IN A NEW SLIDE                                               ║
+  ║  1. Copy the <link> for modal-info.css into your slide <head>.           ║
+  ║  2. Copy the <!-- Modal HTML --> block into your slide <body>.           ║
+  ║  3. Copy the <script> block and fill in your SECTIONS data.              ║
+  ║  4. Call openModal(id) from whatever trigger you like.                   ║
+  ║     • For audio progress to work, wire the audio BEFORE calling          ║
+  ║       openModal — the bar polls CourseRuntime automatically.             ║
+  ╚══════════════════════════════════════════════════════════════════════════╝
+-->
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1920">
+  <title>TEMPLATE — Info Modal</title>
+  <link rel="stylesheet" href="../assets/css/pds-tokens.css">
+  <link rel="stylesheet" href="../assets/css/slide-base.css">
+  <link rel="stylesheet" href="../assets/css/animations.css">
+  <!-- ↓ Modal component styles ↓ -->
+  <link rel="stylesheet" href="../assets/css/modal-info.css">
+  <script>(function(){function s(){document.documentElement.style.setProperty('--scale',Math.min(window.innerWidth/1920,window.innerHeight/920));}s();window.addEventListener('resize',s);})();</script>
+  <style>
+
+    /* ── Demo slide layout (replace with your own slide styles) ─────────── */
+    .slide {
+      background: #0e0e0e;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+      padding: 80px 140px;
+    }
+
+    .demo-heading {
+      font-family: 'Porsche Next TT', Arial, sans-serif;
+      font-size: 36px; font-weight: 300;
+      color: #ffffff; text-align: center; margin: 0;
+    }
+    .demo-subhead {
+      font-family: 'Porsche Next TT', Arial, sans-serif;
+      font-size: 16px; font-weight: 300;
+      color: rgba(255,255,255,0.45); text-align: center; margin: 0;
+    }
+
+    /* Three demo trigger buttons */
+    .demo-triggers {
+      display: flex; gap: 24px;
+    }
+    .demo-btn {
+      padding: 20px 40px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px;
+      color: #fff;
+      font-family: 'Porsche Next TT', Arial, sans-serif;
+      font-size: 16px; font-weight: 600;
+      letter-spacing: 2px; text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .demo-btn:hover { background: rgba(213,0,28,0.1); border-color: #D5001C; }
+
+  </style>
+</head>
+<body>
+
+<!-- ── Demo slide (replace with your real slide content) ─────────────────── -->
+<div class="slide" data-slide-id="TEMPLATE_InfoModal">
+
+  <p class="demo-heading">Info Modal Component — Demo</p>
+  <p class="demo-subhead">Click a button to open the modal. Each card plays its own audio clip<br>and shows a live progress bar while audio runs.</p>
+
+  <div class="demo-triggers">
+    <button class="demo-btn" data-modal="SectionA">Section A</button>
+    <button class="demo-btn" data-modal="SectionB">Section B</button>
+    <button class="demo-btn" data-modal="SectionC">Section C</button>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     MODAL HTML — copy this block verbatim into any slide
+     (ids must remain: pds-modal, pds-modal-stripe, pds-modal-icon,
+      pds-modal-stat, pds-modal-label, pds-modal-bullets,
+      pds-modal-close, pds-modal-progress-fill)
+════════════════════════════════════════════════════════════════════════════ -->
+<div class="pds-modal-overlay" id="pds-modal"
+     role="dialog" aria-modal="true" aria-labelledby="pds-modal-label">
+  <div class="pds-modal-card">
+    <div class="pds-modal-stripe" id="pds-modal-stripe"></div>
+    <div class="pds-modal-body">
+      <button class="pds-modal-close" id="pds-modal-close" aria-label="Close">&times;</button>
+
+      <div class="pds-modal-hero">
+        <img class="pds-modal-icon" id="pds-modal-icon" src="" alt="" aria-hidden="true">
+        <div class="pds-modal-stat-block">
+          <div class="pds-modal-stat" id="pds-modal-stat"></div>
+          <div class="pds-modal-label" id="pds-modal-label"></div>
+        </div>
+      </div>
+
+      <div class="pds-modal-divider"></div>
+      <ul class="pds-modal-bullets" id="pds-modal-bullets"></ul>
+    </div>
+    <div class="pds-modal-progress-track">
+      <div class="pds-modal-progress-fill" id="pds-modal-progress-fill"></div>
+    </div>
+  </div>
+</div>
+<!-- ── end modal HTML ──────────────────────────────────────────────────── -->
+
+
+<!-- ── Player interaction wiring (keep in every slide using this modal) ── -->
+<script>
+(function () {
+  /*
+   * EDIT requiredIds to match the keys in your SECTIONS object below.
+   * The player will lock the Next button until all IDs have been visited.
+   * Set lockNextUntilComplete: false if clicking is optional.
+   */
+  window.parent.postMessage({
+    type: 'sandbox-configure-interactions',
+    requiredIds: ['SectionA', 'SectionB', 'SectionC'],
+    finalCueSrc: 'assets/audio/vo/Click_Next.mp3',
+    lockNextUntilComplete: true
+  }, '*');
+
+  window.addEventListener('message', function (e) {
+    if (!e.data || e.data.type !== 'player-interaction-progress') return;
+    /* Optional: mark the trigger element visited. Example:
+       document.querySelector('[data-modal="' + e.data.id + '"]')
+               .classList.add('visited');
+    */
+  });
+}());
+</script>
+
+<script src="../assets/vendor/gsap/gsap.min.js"></script>
+<script src="../assets/vendor/slide-pause.js"></script>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     MODAL CONTROLLER — copy from here to the closing }()); into your slide.
+     Fill in SECTIONS with your own content.
+════════════════════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+
+  /* ── SECTIONS DATA ─────────────────────────────────────────────────────
+   * Each key becomes the data-modal="…" value on your trigger elements.
+   *
+   * Required fields:
+   *   label   — displayed as uppercase small-caps beneath the stat
+   *   stat    — the large number/text shown in the hero (e.g. "55%" or "3")
+   *   color   — hex color for the stripe, stat, bullet dots, and progress bar
+   *   icon    — path to the section icon image (relative to slide file)
+   *   audio   — path to the click audio VO file
+   *   bullets — array of strings; rendered as a bulleted list
+   * ─────────────────────────────────────────────────────────────────────── */
+  var SECTIONS = {
+    SectionA: {
+      label:   'Section A',
+      stat:    '55%',
+      color:   '#D5001C',
+      icon:    '../assets/images/placeholder.webp',
+      audio:   '../assets/audio/vo/CLICK_SectionA.mp3',
+      bullets: [
+        'First key point for Section A — keep it concise and learner-focused',
+        'Second point — connect back to on-the-job behavior or consequence',
+        'Third point — reinforce the takeaway or action'
+      ]
+    },
+    SectionB: {
+      label:   'Section B',
+      stat:    '38%',
+      color:   '#C0282E',
+      icon:    '../assets/images/placeholder.webp',
+      audio:   '../assets/audio/vo/CLICK_SectionB.mp3',
+      bullets: [
+        'First key point for Section B',
+        'Second key point for Section B',
+        'Third key point for Section B'
+      ]
+    },
+    SectionC: {
+      label:   'Section C',
+      stat:    '7%',
+      color:   '#777777',
+      icon:    '../assets/images/placeholder.webp',
+      audio:   '../assets/audio/vo/CLICK_SectionC.mp3',
+      bullets: [
+        'First key point for Section C',
+        'Second key point for Section C',
+        'Third key point for Section C'
+      ]
+    }
+  };
+
+  /* ── Modal DOM refs ────────────────────────────────────────────────────── */
+  var modal        = document.getElementById('pds-modal');
+  var modalStripe  = document.getElementById('pds-modal-stripe');
+  var modalIcon    = document.getElementById('pds-modal-icon');
+  var modalStat    = document.getElementById('pds-modal-stat');
+  var modalLabel   = document.getElementById('pds-modal-label');
+  var modalBullets = document.getElementById('pds-modal-bullets');
+  var progressFill = document.getElementById('pds-modal-progress-fill');
+  var _progressRaf = null;
+
+  /* ── Audio progress bar ────────────────────────────────────────────────── */
+  function startProgress(color) {
+    progressFill.style.background = color;
+    progressFill.style.width      = '0%';
+    progressFill.style.transition = 'none';
+
+    if (_progressRaf) cancelAnimationFrame(_progressRaf);
+
+    /* 500 ms hold-off: the player may still report the previous clip's
+       end-position for several frames after a clip switch, which would
+       snap the bar to 100% on open. */
+    var audioStarted  = false;
+    var fallbackStart = null;
+    var readyAt       = performance.now() + 500;
+
+    (function tick() {
+      if (!modal.classList.contains('is-open')) return;
+
+      if (performance.now() < readyAt) {
+        _progressRaf = requestAnimationFrame(tick);
+        return;
+      }
+
+      var pct = 0;
+      try {
+        var cr = window.parent && window.parent.CourseRuntime;
+        if (cr && cr.isAudioPlaying && cr.getAudioCurrentTime && cr.getAudioDuration) {
+          var playing = cr.isAudioPlaying();
+          var t       = cr.getAudioCurrentTime();
+          var dur     = cr.getAudioDuration();
+
+          if (playing && dur > 0) {
+            if (!audioStarted) { audioStarted = true; }
+            pct = Math.min(t / dur * 100, 100);
+          } else if (audioStarted) {
+            pct = 100;
+          }
+        } else {
+          /* Fallback: wall-clock estimate, caps at 98% without real data. */
+          if (!fallbackStart) fallbackStart = performance.now();
+          pct = Math.min((performance.now() - fallbackStart) / 30000 * 100, 98);
+        }
+      } catch (_) {}
+
+      progressFill.style.width = pct + '%';
+      _progressRaf = requestAnimationFrame(tick);
+    }());
+  }
+
+  function stopProgress() {
+    if (_progressRaf) { cancelAnimationFrame(_progressRaf); _progressRaf = null; }
+    progressFill.style.width = '0%';
+  }
+
+  /* ── Open / close ──────────────────────────────────────────────────────── */
+  function openModal(id) {
+    var s = SECTIONS[id];
+    if (!s) return;
+
+    modalStripe.style.background = s.color;
+    modalIcon.src                = s.icon;
+    modalStat.textContent        = s.stat;
+    modalStat.style.color        = s.color;
+    modalLabel.textContent       = s.label.toUpperCase();
+
+    modalBullets.innerHTML = s.bullets.map(function (b) {
+      return '<li>'
+           + '<span class="pds-modal-dot" style="background:' + s.color + '"></span>'
+           + '<span>' + b + '</span>'
+           + '</li>';
+    }).join('');
+
+    modal.classList.add('is-open');
+    document.getElementById('pds-modal-close').focus();
+    startProgress(s.color);
+
+    /* Tell the player to play this section's audio clip. */
+    window.parent.postMessage({
+      type: 'sandbox-play-interaction',
+      src: s.audio,
+      id: id,
+      pauseNarration: true,
+      resumeNarration: true
+    }, '*');
+  }
+
+  function closeModal() {
+    modal.classList.remove('is-open');
+    stopProgress();
+  }
+
+  /* ── Close handlers ────────────────────────────────────────────────────── */
+  document.getElementById('pds-modal-close').addEventListener('click', closeModal);
+  modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
+  });
+
+  /* ── Wire trigger elements ─────────────────────────────────────────────── */
+  /*
+   * This wires any element with data-modal="<sectionId>" automatically.
+   * You can also call openModal(id) directly from your own click handlers.
+   */
+  document.querySelectorAll('[data-modal]').forEach(function (el) {
+    el.addEventListener('click', function () {
+      openModal(el.getAttribute('data-modal'));
+    });
+    el.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(el.getAttribute('data-modal')); }
+    });
+  });
+
+}());
+</script>
+<!-- ── end modal controller ───────────────────────────────────────────── -->
+
+</body>
+</html>

@@ -1,7 +1,7 @@
 {
   "meta": {
-    "id": "module-id-here",
-    "title": "[Module Title Here]",
+    "id": "CC08",
+    "title": "Explaining Technical Issues to Non-Technical Customers",
     "version": "1.0.0",
     "language": "en-US",
     "pass_threshold": 80,
@@ -9,170 +9,145 @@
   },
   "slides": [
     {
-      "id": "SLD_CC03_001",
-      "title": "Listening Skills That Build Trust",
-      "audio_vo": "assets/audio/vo/SLD_CC03_001_INTRO.mp3"
+      "id": "SLD_CC08_001",
+      "title": "Explaining Technical Issues to Non-Technical Customers",
+      "audio_vo": "assets/audio/vo/SLD_CC08_001_INTRO.mp3"
     },
     {
-      "id": "SLD_CC03_002",
-      "title": "You Hear All Day. But Are You Listening?",
-      "audio_vo": "assets/audio/vo/SLD_CC03_002_INTRO.mp3"
+      "id": "SLD_CC08_002",
+      "title": "What You'll Learn",
+      "audio_vo": "assets/audio/vo/SLD_CC08_002_INTRO.mp3"
     },
     {
-      "id": "SLD_CC03_003",
-      "title": "Module 3 Learning Objectives",
-      "audio_vo": "assets/audio/vo/SLD_CC03_003_INTRO.mp3"
+      "id": "SLD_CC08_003",
+      "title": "You Speak Technician. They Speak Human.",
+      "audio_vo": "assets/audio/vo/SLD_CC08_003_INTRO.mp3"
     },
     {
-      "id": "SLD_CC03_004",
-      "title": "Listening Is a Technical Skill",
-      "audio_vo": "assets/audio/vo/SLD_CC03_004_INTRO.mp3"
+      "id": "SLD_CC08_004",
+      "title": "The Feature-Function-Benefit Framework",
+      "audio_vo": "assets/audio/vo/SLD_CC08_004_INTRO.mp3"
     },
     {
-      "id": "SLD_CC03_005",
-      "title": "What You Say Isn't Always What They Hear",
-      "audio_vo": "assets/audio/vo/SLD_CC03_005_INTRO.mp3"
+      "id": "KC_CC08_001",
+      "title": "Knowledge Check",
+      "audio_vo": "assets/audio/vo/KC_CC08_001_INTRO.mp3"
     },
     {
-      "id": "SLD_CC03_006",
-      "title": "Your Words Are Only 7% of Your Message",
-      "audio_vo": "assets/audio/vo/SLD_CC03_006_INTRO.mp3"
+      "id": "SLD_CC08_006",
+      "title": "Communicating the Value of Porsche Genuine",
+      "audio_vo": "assets/audio/vo/SLD_CC08_006_INTRO.mp3"
     },
     {
-      "id": "SLD_CC03_007",
-      "title": "Listening Starts Before You Say a Word",
-      "audio_vo": "assets/audio/vo/SLD_CC03_007_INTRO.mp3"
+      "id": "SLD_CC08_007",
+      "title": "Matching Your Explanation to Your Customer",
+      "audio_vo": "assets/audio/vo/SLD_CC08_007_INTRO.mp3"
     },
     {
-      "id": "SLD_CC03_008",
-      "title": "Watch the Difference",
-      "audio_vo": "assets/audio/vo/SLD_CC03_008_INTRO.mp3"
+      "id": "SLD_CC08_008",
+      "title": "Make the Technical Tangible",
+      "audio_vo": "assets/audio/vo/SLD_CC08_008_INTRO.mp3"
     },
     {
-      "id": "KC_CC03_001",
-      "title": "Slide09",
-      "audio_vo": "assets/audio/vo/KC_CC03_001_INTRO.mp3"
+      "id": "SLD_CC08_009",
+      "title": "See It in Action: The Serpentine Belt",
+      "audio_vo": "assets/audio/vo/SLD_CC08_009_INTRO.mp3"
     },
     {
-      "id": "KC_CC03_002",
-      "title": "Slide10",
-      "audio_vo": "assets/audio/vo/KC_CC03_002_INTRO.mp3"
+      "id": "KC_CC08_002",
+      "title": "Knowledge Check",
+      "audio_vo": "assets/audio/vo/KC_CC08_002_INTRO.mp3"
     },
     {
-      "id": "SLD_CC03_009",
-      "title": "Active Listening: Four Techniques That Change Everything",
-      "audio_vo": "assets/audio/vo/SLD_CC03_009_INTRO.mp3"
+      "id": "SLD_CC08_011",
+      "title": "Your Turn: N-Spec Tire Recommendation",
+      "audio_vo": "assets/audio/vo/SLD_CC08_011_INTRO.mp3"
     },
     {
-      "id": "SLD_CC03_010",
-      "title": "Spot the Technique",
-      "audio_vo": "assets/audio/vo/SLD_CC03_010_INTRO.mp3"
+      "id": "SLD_CC08_012",
+      "title": "Your Turn: Leaking Shock Absorbers",
+      "audio_vo": "assets/audio/vo/SLD_CC08_012_INTRO.mp3"
     },
     {
-      "id": "SLD_CC03_011",
-      "title": "Beyond the Words: Acknowledging What the Customer Feels",
-      "audio_vo": "assets/audio/vo/SLD_CC03_011_INTRO.mp3"
+      "id": "SLD_CC08_013",
+      "title": "The Credibility Balance",
+      "audio_vo": "assets/audio/vo/SLD_CC08_013_INTRO.mp3"
     },
     {
-      "id": "SLD_CC03_012",
-      "title": "When the Customer Brings More Than a Car Problem",
-      "audio_vo": "assets/audio/vo/SLD_CC03_012_INTRO.mp3"
+      "id": "SLD_CC08_014",
+      "title": "Module 8 Complete",
+      "audio_vo": "assets/audio/vo/SLD_CC08_014_INTRO.mp3"
     },
     {
-      "id": "SLD_CC03_013",
-      "title": "What Gets in the Way of Really Listening?",
-      "audio_vo": "assets/audio/vo/SLD_CC03_013_INTRO.mp3"
+      "id": "FQ_CC08_001",
+      "title": "Final Assessment — Question 1",
+      "audio_vo": "assets/audio/vo/FQ_CC08_001_INTRO.mp3"
     },
     {
-      "id": "SLD_CC03_014",
-      "title": "The Complete Listening Interaction",
-      "audio_vo": "assets/audio/vo/SLD_CC03_014_INTRO.mp3"
+      "id": "FQ_CC08_002",
+      "title": "Final Assessment — Question 2",
+      "audio_vo": "assets/audio/vo/FQ_CC08_002_INTRO.mp3"
     },
     {
-      "id": "KC_CC03_003",
-      "title": "Slide17",
-      "audio_vo": "assets/audio/vo/KC_CC03_003_INTRO.mp3"
+      "id": "FQ_CC08_003",
+      "title": "Final Assessment — Question 3",
+      "audio_vo": "assets/audio/vo/FQ_CC08_003_INTRO.mp3"
     },
     {
-      "id": "KC_CC03_004",
-      "title": "Slide18",
-      "audio_vo": "assets/audio/vo/KC_CC03_004_INTRO.mp3"
+      "id": "FQ_CC08_004",
+      "title": "Final Assessment — Question 4",
+      "audio_vo": "assets/audio/vo/FQ_CC08_004_INTRO.mp3"
     },
     {
-      "id": "SLD_CC03_015",
-      "title": "Listening Is Where Trust Begins",
-      "audio_vo": "assets/audio/vo/SLD_CC03_015_INTRO.mp3"
+      "id": "FQ_CC08_005",
+      "title": "Final Assessment — Question 5",
+      "audio_vo": "assets/audio/vo/FQ_CC08_005_INTRO.mp3"
     },
     {
-      "id": "FQ_CC03_001",
-      "title": "Slide20",
-      "audio_vo": "assets/audio/vo/FQ_CC03_001_INTRO.mp3"
+      "id": "FQ_CC08_006",
+      "title": "Final Assessment — Question 6",
+      "audio_vo": "assets/audio/vo/FQ_CC08_006_INTRO.mp3"
     },
     {
-      "id": "FQ_CC03_002",
-      "title": "Slide21",
-      "audio_vo": "assets/audio/vo/FQ_CC03_002_INTRO.mp3"
+      "id": "FQ_CC08_007",
+      "title": "Final Assessment — Question 7",
+      "audio_vo": "assets/audio/vo/FQ_CC08_007_INTRO.mp3"
     },
     {
-      "id": "FQ_CC03_003",
-      "title": "Slide22",
-      "audio_vo": "assets/audio/vo/FQ_CC03_003_INTRO.mp3"
+      "id": "FQ_CC08_008",
+      "title": "Final Assessment — Question 8",
+      "audio_vo": "assets/audio/vo/FQ_CC08_008_INTRO.mp3"
     },
     {
-      "id": "FQ_CC03_004",
-      "title": "Slide23",
-      "audio_vo": "assets/audio/vo/FQ_CC03_004_INTRO.mp3"
+      "id": "FQ_CC08_009",
+      "title": "Final Assessment — Question 9",
+      "audio_vo": "assets/audio/vo/FQ_CC08_009_INTRO.mp3"
     },
     {
-      "id": "FQ_CC03_005",
-      "title": "Slide24",
-      "audio_vo": "assets/audio/vo/FQ_CC03_005_INTRO.mp3"
+      "id": "FQ_CC08_010",
+      "title": "Final Assessment — Question 10",
+      "audio_vo": "assets/audio/vo/FQ_CC08_010_INTRO.mp3"
     },
     {
-      "id": "FQ_CC03_006",
-      "title": "Slide25",
-      "audio_vo": "assets/audio/vo/FQ_CC03_006_INTRO.mp3"
-    },
-    {
-      "id": "FQ_CC03_007",
-      "title": "Slide26",
-      "audio_vo": "assets/audio/vo/FQ_CC03_007_INTRO.mp3"
-    },
-    {
-      "id": "FQ_CC03_008",
-      "title": "Slide27",
-      "audio_vo": "assets/audio/vo/FQ_CC03_008_INTRO.mp3"
-    },
-    {
-      "id": "FQ_CC03_009",
-      "title": "Slide28",
-      "audio_vo": "assets/audio/vo/FQ_CC03_009_INTRO.mp3"
-    },
-    {
-      "id": "FQ_CC03_010",
-      "title": "Slide29",
-      "audio_vo": "assets/audio/vo/FQ_CC03_010_INTRO.mp3"
-    },
-    {
-      "id": "FQ_CC03_SCORE",
-      "title": "Slide30",
-      "audio_vo": "assets/audio/vo/FQ_CC03_SCORE_INTRO.mp3"
+      "id": "FQ_CC08_SCORE",
+      "title": "Module 8 Assessment Results",
+      "audio_vo": "assets/audio/vo/FQ_CC08_SCORE_INTRO.mp3"
     }
   ],
   "quiz": {
     "final_quiz": {
       "passing_score": 80,
       "questions": [
-        "FQ_CC03_001",
-        "FQ_CC03_002",
-        "FQ_CC03_003",
-        "FQ_CC03_004",
-        "FQ_CC03_005",
-        "FQ_CC03_006",
-        "FQ_CC03_007",
-        "FQ_CC03_008",
-        "FQ_CC03_009",
-        "FQ_CC03_010"
+        "FQ_CC08_001",
+        "FQ_CC08_002",
+        "FQ_CC08_003",
+        "FQ_CC08_004",
+        "FQ_CC08_005",
+        "FQ_CC08_006",
+        "FQ_CC08_007",
+        "FQ_CC08_008",
+        "FQ_CC08_009",
+        "FQ_CC08_010"
       ]
     }
   }

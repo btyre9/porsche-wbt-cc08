@@ -191,18 +191,17 @@ function buildObjectivesHtml(slide) {
     if (!text) break;
     const num = String(i).padStart(2, '0');
     items.push(
-      `      <li class="obj-item">\n` +
+      `      <li class="obj-item" id="obj-${i}">\n` +
       `        <span class="obj-number">${num}</span>\n` +
       `        <span class="obj-text">${escHtml(text)}</span>\n` +
       `      </li>`
     );
   }
   if (items.length === 0) {
-    // Placeholder items for authoring
     for (let i = 1; i <= 3; i++) {
       const num = String(i).padStart(2, '0');
       items.push(
-        `      <li class="obj-item">\n` +
+        `      <li class="obj-item" id="obj-${i}">\n` +
         `        <span class="obj-number">${num}</span>\n` +
         `        <span class="obj-text"><!-- Objective ${i}: replace with actual objective --></span>\n` +
         `      </li>`
@@ -210,6 +209,26 @@ function buildObjectivesHtml(slide) {
     }
   }
   return items.join('\n');
+}
+
+function buildObjectivesIdsJs(slide) {
+  const ids = [];
+  for (let i = 1; i <= 10; i++) {
+    if (!slide[`Objective-${i}`]) break;
+    ids.push(`'obj-${i}'`);
+  }
+  if (ids.length === 0) ids.push("'obj-1'", "'obj-2'", "'obj-3'");
+  return '[' + ids.join(', ') + ']';
+}
+
+function buildVoCueTimesJs(slide) {
+  const nulls = [];
+  for (let i = 1; i <= 10; i++) {
+    if (!slide[`Objective-${i}`]) break;
+    nulls.push('null');
+  }
+  if (nulls.length === 0) nulls.push('null', 'null', 'null');
+  return '[' + nulls.join(', ') + ']';
 }
 
 // ---------------------------------------------------------------------------
@@ -386,38 +405,110 @@ function renderTemplate(html, tokens) {
 // Build token map for a slide
 // ---------------------------------------------------------------------------
 
+function extractTabTriggers(slide, slideId) {
+  const sep = slideId.includes('_') ? '_' : '-';
+  const triggers = [];
+  for (const [key] of Object.entries(slide)) {
+    const m = key.match(/^Voiceover-TAB-(.+)$/);
+    if (!m) continue;
+    const label = m[1];
+    const body  = slide[`Tab-Body-${label}`] || slide[key] || '';
+    triggers.push({
+      label,
+      title:     camelToWords(label),
+      body,
+      audioPath: `../assets/audio/vo/${slideId}${sep}TAB${sep}${label}.mp3`,
+    });
+  }
+  return triggers;
+}
+
+function buildTabButtonsHtml(triggers) {
+  return triggers.map((t, i) =>
+    `      <button class="tab-btn${i === 0 ? ' is-active' : ''}" ` +
+    `data-tab="${escAttr(t.label)}" data-audio="${escAttr(t.audioPath)}" ` +
+    `role="tab" aria-selected="${i === 0 ? 'true' : 'false'}" tabindex="${i === 0 ? '0' : '-1'}">${escHtml(t.title)}</button>`
+  ).join('\n');
+}
+
+function buildTabPanelsHtml(triggers) {
+  return triggers.map((t, i) =>
+    `      <div class="tab-panel${i === 0 ? ' is-active' : ''}" id="panel-${escAttr(t.label)}" role="tabpanel">\n` +
+    `        <p class="tab-panel__body">${escHtml(t.body)}</p>\n` +
+    `      </div>`
+  ).join('\n');
+}
+
+function buildTabAudioMap(triggers) {
+  const entries = triggers.map(t => `  '${t.label}': '${t.audioPath}'`);
+  return '{\n' + entries.join(',\n') + '\n}';
+}
+
+function buildBulletsHtml(slide) {
+  const items = [];
+  for (let i = 1; i <= 10; i++) {
+    const text = slide[`Bullet-${i}`];
+    if (!text) break;
+    items.push(
+      `            <li><span class="bullet-dot" aria-hidden="true"></span>` +
+      `<span>${escHtml(text)}</span></li>`
+    );
+  }
+  return items.length ? items.join('\n') : '            <!-- no bullets -->';
+}
+
 function buildTokens(slide, allSlides, courseTitle, templateHtml) {
   const slideId     = slide['Slide-ID'];
   const templateId  = slide['Template-ID'];
   const slideTitle  = slide['Slide-Title'] || slideId;
-  const onScreen    = slide['On-Screen-Text'] || slideTitle;
+  const onScreen    = slide['On-Screen-Text'] || '';
   const imageFile   = slide['Image-File'];
-  const imagePath   = imageFile
-    ? `../assets/images/${imageFile}`
-    : '../assets/images/placeholder.webp';
+  const imageSrc    = imageFile ? `../assets/images/${imageFile}` : null;
+  const imagePath   = imageSrc || '../assets/images/placeholder.webp';
 
-  const { value: statValue, label: statLabel } = splitStat(onScreen, slideTitle);
+  const { value: statValue, label: statLabel } = splitStat(onScreen || slideTitle, slideTitle);
   const clicks = extractClickTriggers(slide, slideId);
+  const tabs   = extractTabTriggers(slide, slideId);
 
   // content-quote tokens
-  const quoteText            = slide['Quote']              || onScreen;
-  const quoteAttributionName = slide['Quote-Attribution']  || '<!-- Attribution name -->';
-  const quoteAttributionTitle= slide['Quote-Title']        || '<!-- Attribution title / role -->';
+  const quoteText            = slide['Quote']             || onScreen;
+  const quoteAttributionName = slide['Quote-Attribution'] || '<!-- Attribution name -->';
+  const quoteAttributionTitle= slide['Quote-Title']       || '<!-- Attribution title / role -->';
 
-  // hero-title subtitle: explicit field or second | segment of On-Screen-Text
+  // hero-title subtitle
   const onScreenParts = (slide['On-Screen-Text'] || '').split('|');
   const heroSubtitle  = slide['Hero-Subtitle'] || (onScreenParts[1] ? onScreenParts[1].trim() : '');
 
-  // Pull-Quote: optional field — if present, replaces body copy in content-split with a pc-pull-quote
+  // Pull-Quote or plain body paragraph
   const pullQuoteText = slide['Pull-Quote'];
   let bodyContentHtml;
   if (pullQuoteText) {
-    bodyContentHtml = `<pc-pull-quote class="anim-fade-right" style="--anim-delay: 0.35s;" text="${escAttr(pullQuoteText)}"></pc-pull-quote>`;
+    bodyContentHtml =
+      `<blockquote class="pull-quote">\n` +
+      `        ${escHtml(pullQuoteText)}\n` +
+      `      </blockquote>`;
   } else {
-    bodyContentHtml = `<p class="pds-body anim-fade-right" style="--anim-delay: 0.35s;">${escHtml(onScreen)}</p>`;
+    bodyContentHtml = `<p class="pds-body">${escHtml(onScreen)}</p>`;
   }
 
+  // Image HTML — img with onerror placeholder fallback
+  const imageHtml = imageSrc
+    ? `<img src="${escAttr(imageSrc)}" alt="" draggable="false">`
+    : '';
+
   const eyebrow = slide['Eyebrow'] || courseTitle;
+
+  // KC / FQ per-option tokens
+  const correctNum = parseInt(slide['Correct-Answer'], 10) || 1;
+  const correctIdx = correctNum - 1;
+
+  // FQ label tokens
+  const fqNum = fqQuestionNumber(allSlides, slideId);
+
+  // quiz-score session storage key: FQ_CC08_SCORE → FQ_CC08_results
+  const quizResultsKey = slideId
+    .replace(/_SCORE$/i, '_results')
+    .replace(/-SCORE$/i, '-results');
 
   const tokens = {
     SLIDE_ID:       slideId,
@@ -427,6 +518,9 @@ function buildTokens(slide, allSlides, courseTitle, templateHtml) {
     HERO_SUBTITLE:  escHtml(heroSubtitle),
     MODULE_LABEL:   escHtml(courseTitle),
     IMAGE_PATH:     imagePath,
+    IMAGE_FILE:     imageFile || 'placeholder.webp',
+    IMAGE_HTML:     imageHtml,
+    QUIZ_RESULTS_KEY: quizResultsKey,
     // Stat template
     STAT_VALUE:     escHtml(statValue),
     STAT_LABEL:     escHtml(statLabel),
@@ -435,12 +529,16 @@ function buildTokens(slide, allSlides, courseTitle, templateHtml) {
     QUOTE_ATTRIBUTION_NAME:   escHtml(quoteAttributionName),
     QUOTE_ATTRIBUTION_TITLE:  escHtml(quoteAttributionTitle),
     // Objectives template
-    OBJECTIVES_HTML: buildObjectivesHtml(slide),
-    // content-split template
+    OBJECTIVES_HTML:    buildObjectivesHtml(slide),
+    OBJECTIVES_IDS_JS:  buildObjectivesIdsJs(slide),
+    VO_CUE_TIMES_JS:    buildVoCueTimesJs(slide),
+    INTRO_TEXT:         escHtml(onScreen),
+    // content-bullets / content-split two-col
     COL_LEFT_HEADER:      escHtml(slide['Col-Left-Header']  || ''),
     COL_RIGHT_HEADER:     escHtml(slide['Col-Right-Header'] || ''),
     COL_LEFT_BULLETS:     buildBulletListHtml(slide['Col-Left-Body']),
     COL_RIGHT_BULLETS:    buildBulletListHtml(slide['Col-Right-Body']),
+    BULLETS_HTML:         buildBulletsHtml(slide),
     CALLOUT_HTML:         buildCalloutHtml(slide),
     BULLET_TIMES_ARRAY:   buildBulletTimesArray(slide['Col-Left-Body'], slide['Col-Right-Body']),
     CALLOUT_CUE_TIME:     'null  /* TODO: callout emphasis cue time in seconds */',
@@ -449,14 +547,32 @@ function buildTokens(slide, allSlides, courseTitle, templateHtml) {
     CARD_AUDIO_MAP:    buildCardAudioMap(clicks),
     CARD_INIT_SCRIPT:  buildCardInitScript(clicks),
     TOTAL_CARDS:       String(clicks.length || 3),
-    // content-split body — pull quote or plain body copy
+    // content-split / closing body
     BODY_CONTENT_HTML: bodyContentHtml,
-    // KC / FQ templates
-    QUESTION_TEXT:   escHtml(slide['Question'] || ''),
+    // Tab-panel template
+    TABS_HTML:         buildTabButtonsHtml(tabs),
+    TAB_PANELS_HTML:   buildTabPanelsHtml(tabs),
+    TAB_AUDIO_MAP:     buildTabAudioMap(tabs),
+    TOTAL_TABS:        String(tabs.length || 3),
+    // KC / FQ per-option tokens
+    QUESTION_TEXT:        escHtml(slide['Question'] || ''),
+    OPTION_A_TEXT:        escHtml(slide['Choice-1'] || ''),
+    OPTION_B_TEXT:        escHtml(slide['Choice-2'] || ''),
+    OPTION_C_TEXT:        escHtml(slide['Choice-3'] || ''),
+    OPTION_D_TEXT:        escHtml(slide['Choice-4'] || ''),
+    OPTION_A_CORRECT:     String(correctIdx === 0),
+    OPTION_B_CORRECT:     String(correctIdx === 1),
+    OPTION_C_CORRECT:     String(correctIdx === 2),
+    OPTION_D_CORRECT:     String(correctIdx === 3),
+    REVIEW_SLIDE_ID:      slide['Review-Slide'] || '',
+    FQ_EYEBROW:           'Final Assessment',
+    FQ_QUESTION_LABEL:    escHtml(slide['Slide-Title'] || 'Final Assessment'),
+    FQ_QUESTION_NUMBER_LABEL: `Question ${fqNum}`,
+    // Legacy — kept for backward compat
     CHOICES_HTML:    buildChoicesHtml(slide, templateId),
-    CORRECT_ANSWER:  String(parseInt(slide['Correct-Answer'], 10) || 1),
+    CORRECT_ANSWER:  String(correctNum),
     REVIEW_SLIDE:    slide['Review-Slide'] || '',
-    QUESTION_NUMBER: String(fqQuestionNumber(allSlides, slideId)),
+    QUESTION_NUMBER: String(fqNum),
   };
 
   return tokens;

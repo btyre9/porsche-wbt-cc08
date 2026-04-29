@@ -13,6 +13,7 @@
   "devDependencies": {
     "browser-sync": "^3.0.4",
     "docx": "^9.6.0",
+    "dotenv": "^17.4.2",
     "lottie-web": "^5.13.0",
     "mammoth": "^1.11.0"
   }

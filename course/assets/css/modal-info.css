@@ -1,0 +1,112 @@
+/*
+ * modal-info.css
+ * Porsche WBT — Reusable info modal component
+ *
+ * Usage:
+ *   1. Add <link rel="stylesheet" href="../assets/css/modal-info.css"> to your slide
+ *   2. Copy the HTML structure from TEMPLATE_InfoModal.html
+ *   3. Initialize with initInfoModal(sections, options) — see TEMPLATE_InfoModal.html
+ *
+ * The modal is self-sizing. Width is set to 980px by default and can be
+ * overridden by passing { width: '800px' } in the options object.
+ *
+ * Audio progress bar reads CourseRuntime.getAudioCurrentTime() /
+ * getAudioDuration() each frame while the modal is open.
+ */
+
+/* ── Overlay ───────────────────────────────────────────────────────────── */
+.pds-modal-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(0,0,0,0.78);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.pds-modal-overlay.is-open { opacity: 1; pointer-events: auto; }
+
+/* ── Card ──────────────────────────────────────────────────────────────── */
+.pds-modal-card {
+  background: #17171b;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 14px;
+  width: 980px;
+  overflow: hidden;
+  position: relative;
+  transform: translateY(28px) scale(0.97);
+  transition: transform 0.42s cubic-bezier(0.22,1,0.36,1);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+}
+.pds-modal-overlay.is-open .pds-modal-card { transform: none; }
+
+/* ── Colored accent stripe at top ─────────────────────────────────────── */
+.pds-modal-stripe { height: 4px; width: 100%; }
+
+/* ── Body ──────────────────────────────────────────────────────────────── */
+.pds-modal-body { padding: 52px 68px 64px; }
+
+/* ── Close button ──────────────────────────────────────────────────────── */
+.pds-modal-close {
+  position: absolute; top: 22px; right: 22px;
+  width: 42px; height: 42px; border-radius: 50%;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.16);
+  color: rgba(255,255,255,0.55);
+  font-family: 'Porsche Next TT', Arial, sans-serif;
+  font-size: 22px; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+.pds-modal-close:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.4);
+  color: #fff;
+}
+
+/* ── Hero row — icon + percentage/stat + label ─────────────────────────── */
+.pds-modal-hero {
+  display: flex; align-items: center; gap: 40px;
+  margin-bottom: 36px;
+}
+.pds-modal-icon { width: 112px; height: 112px; object-fit: contain; flex-shrink: 0; }
+.pds-modal-stat-block { display: flex; flex-direction: column; gap: 8px; }
+.pds-modal-stat {
+  font-family: 'Porsche Next TT', Arial, sans-serif;
+  font-size: 96px; font-weight: 700;
+  letter-spacing: -4px; line-height: 1;
+}
+.pds-modal-label {
+  font-family: 'Porsche Next TT', Arial, sans-serif;
+  font-size: 14px; font-weight: 600;
+  letter-spacing: 4px; text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+}
+
+/* ── Divider ───────────────────────────────────────────────────────────── */
+.pds-modal-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 0 0 30px; }
+
+/* ── Bullet list ───────────────────────────────────────────────────────── */
+.pds-modal-bullets {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.pds-modal-bullets li {
+  display: flex; align-items: flex-start; gap: 16px;
+  font-family: 'Porsche Next TT', Arial, sans-serif;
+  font-size: 18px; font-weight: 300; line-height: 1.6;
+  color: rgba(255,255,255,0.82);
+}
+.pds-modal-dot {
+  flex-shrink: 0; width: 7px; height: 7px;
+  border-radius: 50%; margin-top: 11px;
+}
+
+/* ── Audio progress bar ────────────────────────────────────────────────── */
+/* Sits flush at the bottom of the card, beneath all body content. */
+.pds-modal-progress-track {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+  background: rgba(255,255,255,0.06);
+}
+.pds-modal-progress-fill { height: 100%; width: 0%; }
