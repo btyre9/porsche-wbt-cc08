@@ -302,6 +302,8 @@ Template-ID: drag-match
 Slide-Title: [Section heading]
 Caption-Text: [≤120 chars — first sentence of INTRO VO]
 On-Screen-Text: [1 sentence instruction — "Drag each [term/step] to its matching [definition/description]."]
+Match-Col-Left: [Column header for the draggable items — e.g. "Steps", "What You Say", "Terms"]
+Match-Col-Right: [Column header for the drop targets — e.g. "Descriptions", "What They Hear", "Definitions"]
 Image-File: descriptive_name_CCxx.webp
 Image: [Art direction — scene relevant to the content being matched]
 Voiceover-INTRO: [2–3 sentences. Frame what's being matched and why it matters. End with the action: "Drag each step to its description."]
@@ -317,6 +319,7 @@ Notes: drag-match chosen — [reason: active recall of pairs, step sequence, ter
 **Pair count:** 4–7 pairs is the sweet spot. Fewer than 4 feels trivial; more than 7 gets visually crowded.
 **Item labels:** Keep draggable items short — ≤5 words. They appear as chips. Long labels wrap awkwardly.
 **Target descriptions:** 1 sentence each. Clear, distinct — no two definitions should feel interchangeable.
+**Column labels:** `Match-Col-Left` and `Match-Col-Right` must each be on their own line (Rule S1). If omitted, the slide defaults to "Terms" / "Definitions". Always provide them — generic defaults read as placeholder content.
 **Audio:** Drag-match uses only a single `Voiceover-INTRO` clip. No per-pair click audio needed.
 **Image:** Required. The image panel fills the right side of the slide — use a scene that reinforces the content theme.
 

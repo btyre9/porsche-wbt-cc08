@@ -46,6 +46,8 @@ Every slide should carry an image wherever the template supports one. Never leav
 | `step-sequence` | Emerging | Sequential steps — VO-driven, all required |
 | `video-scenario` | Emerging | Video player with optional pause-point quiz |
 | `bar-chart-modal` | Emerging | Animated bar chart with clickable modal detail |
+| `drag-match` | Emerging | Active matching — drag items to correct targets |
+| `hotspot` | Emerging | Clickable markers on a background image |
 
 ---
 
@@ -937,6 +939,122 @@ Notes: bar-chart-modal chosen — 55/38/7 communication breakdown is visual data
 
 ---
 
+### `drag-match`
+
+**Status:** Emerging — reference implementations: `SLD_CC08_003.html`, `SLD_CC08_016.html`
+**Use when:** Learners need to actively connect two sets of related items — step names to descriptions, terms to definitions, concepts to examples. Requires recall rather than recognition; more engaging than reading a list.
+**Avoid when:** Items are parallel, self-contained concepts with no natural pairing (use `card-explore` or `tile-explore`), or the content is sequential (use `step-sequence`).
+
+**What the learner sees:**
+Left column of draggable chips (items); right column of labeled drop zones (targets). Right side of the slide shows a supporting image with a gradient scrim. Column headers label each side. INTRO VO plays on load; interactions lock until INTRO ends. Next unlocks after all items are correctly placed.
+
+**Required fields:**
+
+| Field | Format | Notes |
+|-------|--------|-------|
+| `Slide-Title` | Section heading | Displayed at the top of the slide |
+| `On-Screen-Text` | 1 sentence instruction | Always an action: "Drag each [term] to its matching [definition]." |
+| `Match-Col-Left` | Short label | Column header for draggable items — e.g. "Steps", "What You Say", "Terms" |
+| `Match-Col-Right` | Short label | Column header for drop targets — e.g. "Descriptions", "What They Hear", "Definitions" |
+| `Image-File` | `descriptive_name_CCxx.webp` | Right-panel image. Required — layout has a dedicated image slot. |
+| `Image` | Art direction | Describe scene; used as art direction note until asset is ready. |
+| `Voiceover-INTRO` | 2–3 sentences | Frames what's being matched and ends with the action instruction. |
+| `Match-N-Item` | ≤5 words | Short draggable label. Supports Match-1 through Match-10. |
+| `Match-N-Target` | 1 sentence | The matching definition or description for item N. |
+
+**Important:** `Match-Col-Left` and `Match-Col-Right` must each be on their own line (Rule S1). If omitted they default to "Terms" / "Definitions" — always provide them; generic defaults read as placeholder content.
+
+**Optional fields:**
+
+| Field | Notes |
+|-------|-------|
+| `Caption-Text` | ≤120 chars — first sentence of INTRO VO |
+
+**Pair count:** 4–7 pairs. Fewer than 4 feels trivial; more than 7 gets visually crowded.
+**Audio:** Single `Voiceover-INTRO` clip only. No per-pair audio.
+**Next lock:** Unlocks when all items are placed correctly.
+
+**Example:**
+
+```
+## Slide 16 — The Seven Steps
+
+Slide-ID: SLD_CC08_016
+Template-ID: drag-match
+Slide-Title: The Seven Steps of a Great Explanation
+Caption-Text: Every strong technical explanation follows the same seven steps.
+On-Screen-Text: Every strong technical explanation follows the same seven steps. Drag each step name to its matching description.
+Match-Col-Left: Steps
+Match-Col-Right: Descriptions
+Image-File: technician_explaining_CC08.webp
+Image: A Porsche technician at a service counter, gesturing calmly toward a printed inspection sheet as the customer listens.
+Voiceover-INTRO: Every strong technical explanation follows the same structure. On the left — seven step names. On the right — what each step actually does. Drag each step to its matching description.
+Match-1-Item: Name the Part
+Match-1-Target: Identify the specific component so the customer knows exactly what you're talking about.
+Match-2-Item: Describe the Job
+Match-2-Target: Explain in plain language what that part is supposed to do.
+[...continue for all 7 pairs...]
+Status: Draft
+Notes: drag-match chosen — active recall of explanation framework steps. 7 pairs.
+```
+
+---
+
+### `hotspot`
+
+**Status:** Emerging — reference implementation: `SLD_CC08_009.html` (when built)
+**Use when:** 3–5 distinct discovery points belong to a single visual scene — a service bay, a vehicle diagram, a customer interaction, a process flow. Each point opens a modal with a coached explanation. Spatial meaning matters: the marker position on the image conveys which part of the scene is being discussed.
+**Avoid when:** Topics are parallel/conceptual rather than spatially anchored (use `tile-explore`), or there are more than 5 points (layout becomes crowded).
+
+**What the learner sees:**
+Full-bleed background image. Numbered circular markers positioned over specific image regions. Clicking a marker opens a modal card with a title, body text, and VO narration. All markers must be visited before Next unlocks. INTRO VO plays on load; markers lock until INTRO ends.
+
+**Required fields:**
+
+| Field | Format | Notes |
+|-------|--------|-------|
+| `Slide-Title` | Section heading | Displayed top-left over the image |
+| `On-Screen-Text` | 1 instruction sentence | Always: "Select each marker to explore [topic]." |
+| `Image-File` | `descriptive_name_CCxx.webp` | Full-bleed background image. Markers are positioned over it. |
+| `Image` | Art direction | Describe what's in each region — the artist must place visual detail near each marker's position. |
+| `Voiceover-INTRO` | 2–3 sentences | Name the topic, count the hotspots, end: "Select each marker to explore." |
+| `Hotspot-N-X` | 0–100 (% of image width) | Horizontal position. 0 = left edge, 100 = right edge. |
+| `Hotspot-N-Y` | 0–100 (% of image height) | Vertical position. 0 = top edge, 100 = bottom edge. |
+| `Hotspot-N-Title` | ≤6 words | Heading displayed in the modal card. |
+| `Hotspot-N-Body` | 1–3 sentences | Visible on-screen text inside the modal. Concise summary. |
+| `Voiceover-CLICK-HotspotN` | 2–4 sentences | Full coached explanation. Expands on body — do not repeat verbatim. |
+
+**Placement rules:**
+- Keep markers at least 15% apart to prevent overlap.
+- Keep markers at least 8% from any image edge.
+- Use the `scripts/hotspot-picker.html` browser tool to place markers interactively and copy storyboard output directly.
+
+**Audio:** INTRO clip + one `Voiceover-CLICK-HotspotN` per hotspot. A 4-hotspot slide = 5 audio files. Plan for production accordingly.
+
+**Example:**
+
+```
+## Slide 09 — Reading the Moment
+
+Slide-ID: SLD_CC08_009
+Template-ID: hotspot
+Slide-Title: Reading the Moment
+On-Screen-Text: Select each marker to explore a signal that tells you how to frame your recommendation.
+Image-File: service_counter_CC08.webp
+Image: Wide shot of a Porsche service counter. Customer standing at the left, technician facing them on the right. Four clearly distinct zones: customer's face/body language (upper left), the printed inspection sheet on the counter (center), the technician's hands (lower right), the service bay visible through the glass behind (background center).
+Voiceover-INTRO: Reading the moment means knowing which framing your customer needs before you speak. There are four signals that tell you. Select each marker to explore them.
+Hotspot-1-X: 22
+Hotspot-1-Y: 38
+Hotspot-1-Title: Customer Body Language
+Hotspot-1-Body: A customer who leans in and makes eye contact is ready to engage. One who folds their arms or checks their phone needs a different opening.
+Voiceover-CLICK-Hotspot1: Body language tells you the customer's emotional state before they say a word. Leaning in, making eye contact, nodding — they're engaged and ready to receive information. Pulled back, arms folded, phone in hand — they're uncertain or pressed for time. That signal changes how you open: more context versus a faster path to the bottom line.
+[...continue for hotspots 2–4...]
+Status: Draft
+Notes: hotspot chosen — 4 reading-the-moment signals belong to a single service counter scene. Each marker anchors to a specific visual zone. 5 audio files total.
+```
+
+---
+
 ## Undocumented Template IDs
 
 These IDs appear in the system's field reference but have no implementation or documentation. Do not use them.
@@ -969,6 +1087,15 @@ These IDs appear in the system's field reference but have no implementation or d
 | `Video-File` | `video-scenario` | `filename_CCxx.mp4` — dual-clip: two filenames comma-separated |
 | `Voiceover-INTRO` | All slides with audio | Full VO script — see per-template length guidance below |
 | `Voiceover-CLICK-Label` | `card-explore`, `tile-explore`, `bar-chart-modal` | PascalCase label: `ServiceQuality` |
+| `Match-Col-Left` | `drag-match` | Column header for draggable items — e.g. "Steps", "Terms", "What You Say". Must be on its own line. |
+| `Match-Col-Right` | `drag-match` | Column header for drop targets — e.g. "Descriptions", "Definitions", "What They Hear". Must be on its own line. |
+| `Match-N-Item` | `drag-match` | Draggable chip label — ≤5 words. Supports Match-1 through Match-10. |
+| `Match-N-Target` | `drag-match` | Drop zone content — 1 sentence matching definition or description. |
+| `Hotspot-N-X` | `hotspot` | Horizontal position 0–100 (% of image width). One per hotspot. |
+| `Hotspot-N-Y` | `hotspot` | Vertical position 0–100 (% of image height). One per hotspot. |
+| `Hotspot-N-Title` | `hotspot` | Modal heading — ≤6 words. |
+| `Hotspot-N-Body` | `hotspot` | Visible modal text — 1–3 sentences. Concise summary; VO carries the full explanation. |
+| `Voiceover-CLICK-HotspotN` | `hotspot` | Per-marker VO — 2–4 sentences. Required for every hotspot. |
 | `Tile-Title-Label` | `tile-explore` | Per-tile full display title: `Tile-Title-AccurateDiagnosis: Accurate Diagnosis Starts Here` |
 | `Tile-Sig-Label` | `tile-explore` | Per-tile short keyword for badge: `Tile-Sig-AccurateDiagnosis: Accuracy` — sequence number auto-prepended |
 | `Tile-Bullets-Label` | `tile-explore` | Exactly 3 bullets pipe-separated: `Tile-Bullets-AccurateDiagnosis: Bullet 1 \| Bullet 2 \| Bullet 3` |
