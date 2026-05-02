@@ -429,13 +429,13 @@
     if (tileRow) tileRow.classList.remove('intro-locked');
   }
 
+  var _introMsgReceived = false;
   window.addEventListener('message', function (e) {
-    if (!e.data) return;
-    if (e.data.type === 'player-intro-state' && !e.data.locked) unlockTiles();
+    if (!e.data || e.data.type !== 'player-intro-state') return;
+    _introMsgReceived = true;
+    if (!e.data.locked) unlockTiles();
   });
-
-  /* Standalone / no-player fallback: unlock immediately */
-  try { if (!window.parent || !window.parent.CourseRuntime) unlockTiles(); } catch (_) { unlockTiles(); }
+  setTimeout(function () { if (!_introMsgReceived) unlockTiles(); }, 300);
 
   window.parent.postMessage({
     type: 'sandbox-configure-interactions',

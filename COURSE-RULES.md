@@ -163,8 +163,8 @@ The Next button is disabled for the duration of INTRO audio playback.
 ### I3 — Next button locked until all interactions complete
 On interactive slides, Next stays locked until the learner has visited every required interaction element. Required IDs are declared via `sandbox-configure-interactions`.
 
-### I4 — Click_Next.mp3 and Next unlock happen simultaneously
-When the last required interaction is visited, `Click_Next.mp3` starts playing and the Next button enables at the exact same moment. The learner may advance immediately or wait for the clip to finish.
+### I4 — 2-second pause before Click_Next.mp3 plays
+When the last required interaction is visited, the Next button enables immediately. `Click_Next.mp3` plays 2 seconds later. This gives the learner a brief breath after the last interaction audio ends before the navigation prompt sounds. The delay is implemented centrally in `runtime.js → maybePlayFinalNextCue()` and applies to all interactive templates automatically.
 
 ### I5 — Next button pulses on unlock
 When Next transitions from disabled to enabled, it plays a brief red-ring pulse animation to draw attention.
@@ -197,12 +197,16 @@ function unlockInteractions() {
   if (container) container.style.pointerEvents = '';
 }
 
+// Wait for player-intro-state; if none arrives within 300ms assume standalone mode.
+// Do NOT use the synchronous window.parent.CourseRuntime check — it fires before the
+// player has time to initialize and causes interactions to unlock during INTRO.
+var _introMsgReceived = false;
 window.addEventListener('message', function (e) {
-  if (!e.data) return;
-  if (e.data.type === 'player-intro-state' && !e.data.locked) unlockInteractions();
+  if (!e.data || e.data.type !== 'player-intro-state') return;
+  _introMsgReceived = true;
+  if (!e.data.locked) unlockInteractions();
 });
-
-try { if (!window.parent || !window.parent.CourseRuntime) unlockInteractions(); } catch (_) { unlockInteractions(); }
+setTimeout(function () { if (!_introMsgReceived) unlockInteractions(); }, 300);
 ```
 
 ### T3 — Click handlers guard against locked state

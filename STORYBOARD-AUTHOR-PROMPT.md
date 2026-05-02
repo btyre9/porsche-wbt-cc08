@@ -90,6 +90,7 @@ There are exactly two title positions across the entire course. Every slide fall
 | 3–5 named techniques or topics — exploration in any order | `tab-panel` |
 | 3–5 concepts with strong, distinct visual identities | `tile-explore` |
 | 3–5 discovery points anchored to a visual scene | `hotspot` |
+| Matching terms to definitions, steps to descriptions, or concepts to examples | `drag-match` |
 | Process or framework with required sequence | `step-sequence` |
 | Scripted scenario or video demonstration | `video-scenario` |
 | Data in 3–4 categories needing expanded explanation | `bar-chart-modal` |
@@ -290,6 +291,36 @@ Status: Draft
 Notes: tab-panel chosen — [reason]. [N] tabs.
 ```
 Tab labels: PascalCase, no spaces. Write each `Voiceover-TAB-Label` immediately followed by `Tab-Body-Label`.
+
+### `drag-match`
+
+Use when learners need to actively connect two sets of related items — step names to descriptions, terms to definitions, concepts to examples. More engaging than reading a list; requires recall rather than recognition.
+
+```
+Slide-ID: SLD_CCxx_NNN
+Template-ID: drag-match
+Slide-Title: [Section heading]
+Caption-Text: [≤120 chars — first sentence of INTRO VO]
+On-Screen-Text: [1 sentence instruction — "Drag each [term/step] to its matching [definition/description]."]
+Image-File: descriptive_name_CCxx.webp
+Image: [Art direction — scene relevant to the content being matched]
+Voiceover-INTRO: [2–3 sentences. Frame what's being matched and why it matters. End with the action: "Drag each step to its description."]
+Match-1-Item: [Short draggable label — ≤5 words]
+Match-1-Target: [Matching definition or description — 1 sentence]
+Match-2-Item: [Short label]
+Match-2-Target: [Definition]
+[...repeat up to Match-10...]
+Status: Draft
+Notes: drag-match chosen — [reason: active recall of pairs, step sequence, term-definition matching]. [N] pairs.
+```
+
+**Pair count:** 4–7 pairs is the sweet spot. Fewer than 4 feels trivial; more than 7 gets visually crowded.
+**Item labels:** Keep draggable items short — ≤5 words. They appear as chips. Long labels wrap awkwardly.
+**Target descriptions:** 1 sentence each. Clear, distinct — no two definitions should feel interchangeable.
+**Audio:** Drag-match uses only a single `Voiceover-INTRO` clip. No per-pair click audio needed.
+**Image:** Required. The image panel fills the right side of the slide — use a scene that reinforces the content theme.
+
+---
 
 ### `hotspot`
 

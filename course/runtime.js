@@ -1019,12 +1019,15 @@
     flow.finalCuePending = false;
     flow.finalCuePlayed = true;
     updateInteractionNextLock();
-    playInteractionAudio({
-      src: flow.finalCueSrc,
-      pauseNarration: false,
-      resumeNarration: false,
-      isFinalCue: true
-    });
+    // 2-second breath between last interaction audio and Click_Next cue
+    setTimeout(function () {
+      playInteractionAudio({
+        src: flow.finalCueSrc,
+        pauseNarration: false,
+        resumeNarration: false,
+        isFinalCue: true
+      });
+    }, 2000);
     return true;
   }
 

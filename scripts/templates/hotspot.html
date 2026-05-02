@@ -455,12 +455,13 @@ var TOTAL_HOTSPOTS = {{TOTAL_HOTSPOTS}};
     });
   }
 
+  var _introMsgReceived = false;
   window.addEventListener('message', function (e) {
-    if (!e.data) return;
-    if (e.data.type === 'player-intro-state' && !e.data.locked) unlockHotspots();
+    if (!e.data || e.data.type !== 'player-intro-state') return;
+    _introMsgReceived = true;
+    if (!e.data.locked) unlockHotspots();
   });
-
-  try { if (!window.parent || !window.parent.CourseRuntime) unlockHotspots(); } catch (_) { unlockHotspots(); }
+  setTimeout(function () { if (!_introMsgReceived) unlockHotspots(); }, 300);
 
   /* ── Register with player ───────────────────────────────────────────────── */
   window.parent.postMessage({

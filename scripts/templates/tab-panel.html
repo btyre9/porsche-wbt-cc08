@@ -267,17 +267,27 @@
     if (!tabsLocked) return;
     tabsLocked = false;
     if (tabsNav) tabsNav.style.pointerEvents = '';
-    /* Auto-activate first tab after INTRO */
-    if (buttons.length > 0) activateTab(buttons[0]);
+    /* Show first tab content visually — audio plays only on explicit user click */
+    if (buttons.length > 0) {
+      var first = buttons[0];
+      buttons.forEach(function (b) { b.classList.remove('is-active'); b.setAttribute('aria-selected', 'false'); b.setAttribute('tabindex', '-1'); });
+      panels.forEach(function (p) { p.classList.remove('is-active'); });
+      first.classList.add('is-active');
+      first.setAttribute('aria-selected', 'true');
+      first.setAttribute('tabindex', '0');
+      var firstPanel = document.getElementById('panel-' + first.getAttribute('data-tab'));
+      if (firstPanel) firstPanel.classList.add('is-active');
+    }
   }
 
+  /* Robust fallback: wait for player-intro-state; if none arrives, assume standalone */
+  var _introMsgReceived = false;
   window.addEventListener('message', function (e) {
-    if (!e.data) return;
-    if (e.data.type === 'player-intro-state' && !e.data.locked) unlockTabs();
+    if (!e.data || e.data.type !== 'player-intro-state') return;
+    _introMsgReceived = true;
+    if (!e.data.locked) unlockTabs();
   });
-
-  /* Standalone / no-player fallback: unlock immediately */
-  try { if (!window.parent || !window.parent.CourseRuntime) unlockTabs(); } catch (_) { unlockTabs(); }
+  setTimeout(function () { if (!_introMsgReceived) unlockTabs(); }, 300);
 
   /* ── Tab click/keyboard handlers ──────────────────────────────────────── */
   buttons.forEach(function (btn) {

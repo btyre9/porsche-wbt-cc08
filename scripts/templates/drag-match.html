@@ -13,10 +13,48 @@
     .slide {
       background: #0D0D0F;
       display: flex;
-      flex-direction: column;
-      padding: 64px 100px 56px 100px;
-      gap: 40px;
+      flex-direction: row;
+      padding: 0;
+      gap: 0;
       overflow: hidden;
+    }
+
+    /* ── Left content panel ──────────────────────────────────────────────── */
+    .slide-content {
+      flex: 0 0 1180px;
+      display: flex;
+      flex-direction: column;
+      padding: 60px 72px 52px 100px;
+      gap: 32px;
+      overflow: hidden;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Right image panel ───────────────────────────────────────────────── */
+    .slide-image {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+    .slide-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+    }
+    .slide-image-scrim {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to right,
+        rgba(13,13,15,0.82)   0%,
+        rgba(13,13,15,0.40)  35%,
+        rgba(13,13,15,0.05)  70%,
+        transparent          100%
+      );
+      pointer-events: none;
     }
 
     /* ── Header ──────────────────────────────────────────────────────────── */
@@ -70,7 +108,7 @@
 
     /* ── Items pool (left) ───────────────────────────────────────────────── */
     .items-col {
-      width: 440px;
+      width: 380px;
       flex-shrink: 0;
       display: flex;
       flex-direction: column;
@@ -86,7 +124,7 @@
       display: flex;
       align-items: center;
       gap: 16px;
-      height: 72px;
+      height: 64px;
       padding: 0 22px;
       background: #191921;
       border: 1.5px solid rgba(255,255,255,0.09);
@@ -162,7 +200,7 @@
     .match-target {
       display: flex;
       align-items: stretch;
-      min-height: 72px;
+      min-height: 64px;
       border-radius: 6px;
       border: 1.5px dashed rgba(255,255,255,0.14);
       background: rgba(255,255,255,0.02);
@@ -302,29 +340,40 @@
 
 <div class="slide" data-slide-id="{{SLIDE_ID}}">
 
-  <header class="slide-header">
-    <div class="red-accent anim-block" id="el-accent"></div>
-    <h1 class="slide-title anim-block" id="el-title">{{SLIDE_TITLE}}</h1>
-    <p class="slide-instruction anim-block" id="el-instruction">{{ON_SCREEN_TEXT}}</p>
-  </header>
+  <!-- Left: content panel -->
+  <div class="slide-content">
 
-  <div class="match-zone is-locked" id="match-zone">
-    <div class="items-col">
-      <p class="col-label">Terms</p>
-      <div class="items-pool" id="items-pool" role="list" aria-label="Terms to match"></div>
+    <header class="slide-header">
+      <div class="red-accent anim-block" id="el-accent"></div>
+      <h1 class="slide-title anim-block" id="el-title">{{SLIDE_TITLE}}</h1>
+      <p class="slide-instruction anim-block" id="el-instruction">{{ON_SCREEN_TEXT}}</p>
+    </header>
+
+    <div class="match-zone is-locked" id="match-zone">
+      <div class="items-col">
+        <p class="col-label">{{MATCH_COL_LEFT}}</p>
+        <div class="items-pool" id="items-pool" role="list" aria-label="{{MATCH_COL_LEFT}}"></div>
+      </div>
+      <div class="match-divider" aria-hidden="true"></div>
+      <div class="targets-col">
+        <p class="col-label">{{MATCH_COL_RIGHT}}</p>
+        <div class="targets-list" id="targets-list" role="list" aria-label="Drop targets"></div>
+      </div>
     </div>
-    <div class="match-divider" aria-hidden="true"></div>
-    <div class="targets-col">
-      <p class="col-label">Definitions</p>
-      <div class="targets-list" id="targets-list" role="list" aria-label="Drop targets"></div>
+
+    <div class="match-footer">
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+      <span class="progress-label" id="progress-label">0 of {{TOTAL_PAIRS}} matched</span>
     </div>
+
   </div>
 
-  <div class="match-footer">
-    <div class="progress-track">
-      <div class="progress-fill" id="progress-fill"></div>
-    </div>
-    <span class="progress-label" id="progress-label">0 of {{TOTAL_PAIRS}} matched</span>
+  <!-- Right: image panel -->
+  <div class="slide-image">
+    <img src="{{IMAGE_PATH}}" alt="" draggable="false">
+    <div class="slide-image-scrim" aria-hidden="true"></div>
   </div>
 
 </div>
@@ -533,12 +582,13 @@ var TOTAL_PAIRS = {{TOTAL_PAIRS}};
     });
   }
 
+  var _introMsgReceived = false;
   window.addEventListener('message', function (e) {
-    if (!e.data) return;
-    if (e.data.type === 'player-intro-state' && !e.data.locked) unlockZone();
+    if (!e.data || e.data.type !== 'player-intro-state') return;
+    _introMsgReceived = true;
+    if (!e.data.locked) unlockZone();
   });
-
-  try { if (!window.parent || !window.parent.CourseRuntime) unlockZone(); } catch (_) { unlockZone(); }
+  setTimeout(function () { if (!_introMsgReceived) unlockZone(); }, 300);
 
   /* ── Register interaction IDs with player ───────────────────────────────── */
   window.parent.postMessage({

@@ -429,11 +429,13 @@ function buildTileInitScript(tiles) {
     `    voUnlocked = true;\n` +
     `    if (tileRow) tileRow.classList.remove('intro-locked');\n` +
     `  }\n\n` +
+    `  var _introMsgReceived = false;\n` +
     `  window.addEventListener('message', function (e) {\n` +
-    `    if (!e.data) return;\n` +
-    `    if (e.data.type === 'player-intro-state' && !e.data.locked) unlockTiles();\n` +
+    `    if (!e.data || e.data.type !== 'player-intro-state') return;\n` +
+    `    _introMsgReceived = true;\n` +
+    `    if (!e.data.locked) unlockTiles();\n` +
     `  });\n` +
-    `  try { if (!window.parent || !window.parent.CourseRuntime) unlockTiles(); } catch (_) { unlockTiles(); }\n\n` +
+    `  setTimeout(function () { if (!_introMsgReceived) unlockTiles(); }, 300);\n\n` +
     `  window.parent.postMessage({\n` +
     `    type: 'sandbox-configure-interactions',\n` +
     `    requiredIds: requiredIds,\n` +
@@ -790,6 +792,8 @@ function buildTokens(slide, allSlides, courseTitle, templateHtml) {
     REVIEW_SLIDE:    slide['Review-Slide'] || '',
     QUESTION_NUMBER: String(fqNum),
     // drag-match template
+    MATCH_COL_LEFT:  escHtml(slide['Match-Col-Left']  || 'Terms'),
+    MATCH_COL_RIGHT: escHtml(slide['Match-Col-Right'] || 'Definitions'),
     MATCH_DATA_JS:   buildMatchDataJs(slide),
     TOTAL_PAIRS:     String((function () {
       let n = 0;
