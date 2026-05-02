@@ -293,7 +293,23 @@ function buildPerCardTokens(slide, clicks) {
     tokens[`${p}_HREF`]    = '#' + camelToKebab(label);
   });
 
-  tokens['SLIDE_SUBTITLE'] = escHtml(slide['On-Screen-Text'] || '');
+  // Always provide CARD_4_* tokens — hidden attribute set when card 4 is unused.
+  if (clicks.length < 4) {
+    tokens['CARD_4_ID']      = '';
+    tokens['CARD_4_NUMBER']  = '';
+    tokens['CARD_4_LABEL']   = '';
+    tokens['CARD_4_TITLE']   = '';
+    tokens['CARD_4_IMAGE']   = '';
+    tokens['CARD_4_BULLETS'] = '';
+    tokens['CARD_4_AUDIO']   = '';
+    tokens['CARD_4_HREF']    = '#';
+    tokens['CARD_4_HIDDEN']  = 'hidden';
+  } else {
+    tokens['CARD_4_HIDDEN']  = '';
+  }
+
+  tokens['SLIDE_SUBTITLE']    = escHtml(slide['On-Screen-Text'] || '');
+  tokens['CARD_REQUIRED_IDS'] = JSON.stringify(clicks.map(t => t.label));
 
   const nextCue = slide['Next-Cue'];
   tokens['FINAL_CUE_SRC'] = nextCue

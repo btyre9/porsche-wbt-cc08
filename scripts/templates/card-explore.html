@@ -402,21 +402,40 @@
          href="{{CARD_3_HREF}}" target="_self"></a>
     </article>
 
+    <!-- Card 4 -->
+    <article class="tile" data-card="{{CARD_4_ID}}" id="card-{{CARD_4_ID}}"
+             role="button" tabindex="0" aria-label="Explore {{CARD_4_TITLE}}" {{CARD_4_HIDDEN}}>
+      <img class="tile-poster" src="{{CARD_4_IMAGE}}" alt="" aria-hidden="true">
+      <div class="tile-dim" aria-hidden="true"></div>
+      <div class="tile-signature">
+        <span class="tile-signature__mark">{{CARD_4_NUMBER}} &middot; {{CARD_4_LABEL}}</span>
+        <span class="tile-signature__divider" aria-hidden="true"></span>
+      </div>
+      <div class="tile-content">
+        <h2 class="tile-title">{{CARD_4_TITLE}}</h2>
+        <ul class="tile-bullets">
+{{CARD_4_BULLETS}}
+        </ul>
+        <div class="tile-cta-row">
+          <span class="tile-cta">Explore</span>
+          <span class="tile-cta__arrow" aria-hidden="true">&rarr;</span>
+        </div>
+      </div>
+      <a aria-hidden="true" tabindex="-1" class="DesktopCarRangeTile__clickableArea__403b1"
+         href="{{CARD_4_HREF}}" target="_self"></a>
+    </article>
+
   </div>
 
 </div>
 
 <!-- ── Player interaction wiring ───────────────────────────────────────────
-     Locks Next until all three tiles are visited. Each tile click fires a
+     Locks Next until all tiles are visited. Each tile click fires a
      sandbox-play-interaction message with the card's VO audio. -->
 <script>
 (function () {
-  var AUDIO_MAP = {
-    "{{CARD_1_ID}}": "{{CARD_1_AUDIO}}",
-    "{{CARD_2_ID}}": "{{CARD_2_AUDIO}}",
-    "{{CARD_3_ID}}": "{{CARD_3_AUDIO}}"
-  };
-  var requiredIds = ["{{CARD_1_ID}}", "{{CARD_2_ID}}", "{{CARD_3_ID}}"];
+  var AUDIO_MAP = {{CARD_AUDIO_MAP}};
+  var requiredIds = {{CARD_REQUIRED_IDS}};
 
   /* Block tile clicks until the player signals INTRO VO is done */
   var voUnlocked = false;
