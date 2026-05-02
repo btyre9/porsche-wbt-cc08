@@ -1,7 +1,7 @@
 # Porsche WBT Slide Template Reference
 
 **How to use:**
-Give this document to Claude alongside `SLIDE-REFERENCE.md` and a course outline. Claude selects the best template for each slide, writes all required fields, and outputs a complete, parser-ready storyboard block. Every example in this document can be used as a direct model.
+Give this document to Claude alongside `STORYBOARD-AUTHOR-PROMPT.md` and the course learning materials. Claude selects the best template for each slide, writes all required fields, and outputs a complete, parser-ready storyboard. Every example in this document can be used as a direct model.
 
 **Two template types:**
 - **Standard** — fully implemented in `generate-slides.js`. Storyboard fields populate the HTML automatically via the pipeline.
@@ -31,7 +31,7 @@ Every slide should carry an image wherever the template supports one. Never leav
 | Template ID | Type | Purpose |
 |-------------|------|---------|
 | `hero-title` | Standard | Module opener — full-bleed hero image with title |
-| `learning-objectives` | Standard | Learning objectives — animated numbered list |
+| `objectives` | Standard | Learning objectives — animated numbered list |
 | `content-split` | Standard | Core instructional content — text + image |
 | `content-stat` | Standard | Single statistic highlight |
 | `content-bullets` | Standard | Principles or steps list with image |
@@ -104,7 +104,7 @@ Notes: hero-title chosen — standard module opener. Hero image should reinforce
 
 ---
 
-### `learning-objectives`
+### `objectives`
 
 **Status:** Standard — parser-generated
 **Use when:** Slide 02 of every module. Always second. No exceptions.
@@ -118,15 +118,22 @@ Two-column layout: section heading on the left, numbered learning objectives on 
 | Field | Format | Notes |
 |-------|--------|-------|
 | `Slide-Title` | e.g. `In this module, you will:` | Left column heading |
-| `Objective-1` through `Objective-N` | Verb-first: `Identify…`, `Explain…`, `Apply…` | One complete objective per field. Parser stops at first missing number. Max 10. |
+| `Objective-1` through `Objective-N` | Verb-first: `Identify…`, `Explain…`, `Apply…` | **Required.** One complete objective per field. Parser stops at first missing number. Max 10. If no `Objective-N` fields exist, the generator outputs placeholder comments — treat this as a build error and fix the storyboard before publishing. |
 | `Voiceover-INTRO` | 1 intro + 1 sentence per objective | VO names each objective aloud so animation timing aligns |
 | `Caption-Text` | ≤120 chars | e.g. `By the end of this module, you will be able to do four things.` |
 | `Image-File` | `descriptive_name_CCxx.webp` | Right-side contextual image — a scene that represents the module's subject matter |
 | `Image` | Art direction | Include if `Image-File` is not yet sourced. Renders as `.img-placeholder` until asset is ready. |
 
+**Optional fields (post-production):**
+
+| Field | Notes |
+|-------|-------|
+| `VO-Cue-1` through `VO-Cue-N` | Fill in after VO is recorded. Time in seconds from the start of the INTRO audio at which that objective should receive the emphasis animation. One field per objective — `VO-Cue-1: 4.2`, `VO-Cue-2: 8.7`, etc. The generator writes these into the slide's `voTimes` JS array. Leave absent (or set to `null`) until the recording is available. |
+
 **Interaction model:**
 - Next locks on entry until all objectives have animated in.
-- Objectives animate in sequentially — each fades in as the VO names it.
+- Objectives animate in sequentially via GSAP stagger on load (scale 0.88 → 1, opacity 0 → 1).
+- **Emphasis rule:** When the VO reaches the cue time for each objective, that objective receives an emphasis animation (scale 1.06×, brightness 1.35×). All objectives not yet reached are dimmed (brightness 0.5×). This is driven by the `VO-Cue-N` fields written into the slide's `voTimes` JS array. Every published slide must have `VO-Cue-N` values set — `null` entries are only acceptable before VO recording is complete.
 - No click interaction required.
 
 **VO guidance:**
@@ -137,17 +144,19 @@ One sentence stating the total count ("By the end of this module, you will be ab
 ## Slide 02 — Learning Objectives
 
 Slide-ID: SLD_CC00_002
-Template-ID: learning-objectives
-Slide-Title: In this module, you will:
+Template-ID: objectives
+Slide-Title: What You'll Learn
+Caption-Text: By the end of this module, you will be able to do four things.
+On-Screen-Text: By the end of this module, you will be able to do four things.
 Objective-1: Explain why communication breaks down in service interactions
 Objective-2: Identify the four active listening techniques used by top advisors
 Objective-3: Apply the FACE framework to your next customer conversation
 Objective-4: Recognize common barriers to listening and how to overcome them
->> On slide load → SLD_CC00_002_INTRO.mp3
+Image-File: learning_objectives_CC00.webp
+Image: A Porsche service advisor in a clean, professional environment. Attentive and approachable.
 Voiceover-INTRO: By the end of this module, you will be able to do four things. First — explain why communication breaks down even when both parties are trying. Second — identify the four active listening techniques used by the most effective Porsche service advisors. Third — apply the FACE framework in your next customer conversation. And fourth — recognize the most common barriers to listening and know what to do about them.
-Caption-Text: By the end of this module, you will be able to do four things.
 Status: Draft
-Notes: learning-objectives chosen — standard second slide. VO explicitly names each objective so stagger animations sync naturally to audio.
+Notes: objectives chosen — standard second slide. VO explicitly names each objective so stagger animations sync naturally to audio.
 ```
 
 ---
@@ -289,11 +298,10 @@ Split layout: brief intro paragraph above a bulleted list on the left, image on 
 |-------|--------|-------|
 | `Slide-Title` | Section heading | |
 | `On-Screen-Text` | 1–2 sentence intro | Sets up the list |
+| `Bullet-1` through `Bullet-N` | One bullet per field | 3–6 bullets. Parser reads consecutive Bullet-N fields until a number is missing. Write each bullet as a complete short phrase — no leading dash or asterisk. |
 | `Image-File` | `descriptive_name_CCxx.webp` | Right-column image |
 | `Voiceover-INTRO` | 4–7 sentences | Walk through each bullet with one sentence each |
 | `Caption-Text` | ≤120 chars | First sentence of INTRO VO |
-
-**Post-generation step required:** After running `generate-slides.js`, open the HTML file and fill in the `<!-- Bullet heading -->` and `<!-- Supporting detail -->` placeholder comments in the generated bullet list.
 
 **VO guidance:**
 One intro sentence, then one sentence per bullet. Keep each bullet explanation tight — one clear idea per item.
@@ -307,12 +315,15 @@ Template-ID: content-bullets
 Slide-Title: The FACE Framework
 On-Screen-Text: Top Porsche service advisors structure every intake conversation using four steps.
 Image-File: face_framework_overview_CC00.webp
->> On slide load → SLD_CC00_008_INTRO.mp3
+Bullet-1: Focus — begin every intake with your full, undivided attention on the customer
+Bullet-2: Acknowledge — confirm what the customer said before moving forward
+Bullet-3: Clarify — ask the one follow-up question that fills in the biggest gap
+Bullet-4: Explore — look beyond the reported concern for anything else that needs attention
 Voiceover-INTRO: The FACE framework gives every intake conversation a reliable structure. Focus — start the interaction with your full, undivided attention on the customer. Acknowledge — confirm what they've told you before moving forward. Clarify — ask the one follow-up question that fills in the biggest gap. And Explore — look beyond the reported concern to anything else that may need attention. Use these four steps in sequence, and you'll rarely leave a customer feeling unheard.
 Caption-Text: Top Porsche service advisors structure every intake using four steps.
 Image: Clean graphic or illustration of the four FACE steps — minimal, branded, on dark background.
 Status: Draft
-Notes: content-bullets chosen — four parallel framework components. Fill in bullet headings and detail in generated HTML after running the generator.
+Notes: content-bullets chosen — four parallel framework components. Bullet-1 through Bullet-4 are parsed directly into the HTML list.
 ```
 
 ---
@@ -379,15 +390,23 @@ Section heading above a grid of 3–6 cards. Cards are locked (grayed out with a
 | Field | Format | Notes |
 |-------|--------|-------|
 | `Slide-Title` | Section heading | |
+| `On-Screen-Text` | 1–2 sentences | Instruction shown below the title, e.g. "Click each card to explore." |
 | `Voiceover-INTRO` | 2–3 sentences | Name the topic; state the number of cards; end with instruction to click each one |
-| `Voiceover-CLICK-Label` | One per card, 2–4 sentences each | Label becomes card title. PascalCase. Plays on card click. |
+| `Voiceover-CLICK-Label` | One per card, 2–4 sentences each | Label becomes the PascalCase ID for the card. Plays on card click. Order determines left-to-right card position. |
+| `Card-Title-Label` | Short phrase | Heading displayed on the card tile. One per card. Label matches the `Voiceover-CLICK-Label` key. |
+| `Card-Sig-Label` | 1–3 words | Signature word shown with the card number mark (e.g., "01 · Feature"). Usually the plain-English label. |
+| `Card-Bullets-Label` | Pipe-separated list | 2–4 bullet points for the card body. One per card. Separate items with ` | `. |
+| `Card-Image-Label` | `filename.webp` | Poster image for the card tile. Optional — falls back to a rotating placeholder from available assets. |
 | `Image-File` | `descriptive_name_CCxx.webp` | Background image behind the card grid |
 | `Caption-Text` | ≤120 chars | First sentence of INTRO VO |
+
+> **Rule:** Every `Voiceover-CLICK-Label` key requires a matching `Card-Title-Label`, `Card-Sig-Label`, and `Card-Bullets-Label` field. Missing content fields produce placeholder text. A slide should be considered incomplete if any of these are absent.
 
 **Optional fields:**
 
 | Field | Notes |
 |-------|-------|
+| `Card-Image-Label` | Poster image per card. If omitted, the generator cycles through available Porsche images as placeholders. |
 | `Image` | Art direction if `Image-File` is not yet sourced. Renders as `.img-placeholder` until asset is ready. |
 
 **Audio file naming (auto-generated):** `{SLIDE_ID}_CLICK_{Label}.mp3`
@@ -408,16 +427,22 @@ Section heading above a grid of 3–6 cards. Cards are locked (grayed out with a
 Slide-ID: SLD_CC00_011
 Template-ID: card-explore
 Slide-Title: The Three Channels of Communication
->> On slide load → SLD_CC00_011_INTRO.mp3
-Voiceover-INTRO: Every message you send travels through three channels simultaneously. Understanding each one gives you more control over how you're perceived. Click each card to explore the three channels.
+On-Screen-Text: Every message you send travels through three channels at once. Click each card to explore them.
 Caption-Text: Every message you send travels through three channels simultaneously.
->> User clicks BodyLanguage card → SLD_CC00_011_CLICK_BodyLanguage.mp3
+Image-File: communication_channels_CC00.webp
+Voiceover-INTRO: Every message you send travels through three channels simultaneously. Understanding each one gives you more control over how you're perceived. Click each card to explore the three channels.
 Voiceover-CLICK-BodyLanguage: Body language carries more of your message than most people realize — posture, eye contact, facial expression, and proximity all communicate before you speak. In a service interaction, an open stance and steady eye contact signal confidence and engagement. A glance at your screen or crossed arms signal the opposite, even when that's not your intent.
->> User clicks ToneOfVoice card → SLD_CC00_011_CLICK_ToneOfVoice.mp3
+Card-Title-BodyLanguage: What Your Body Says
+Card-Sig-BodyLanguage: Body Language
+Card-Bullets-BodyLanguage: Posture, eye contact, and facial expression communicate before you speak | An open stance and steady eye contact signal confidence | Crossed arms or screen glances undercut your message — even unintentionally
 Voiceover-CLICK-ToneOfVoice: Your tone of voice — warmth, pace, and confidence — shapes how your message lands more than word choice does. The same sentence delivered with certainty builds trust; delivered with hesitation creates doubt. Slow down when delivering difficult news. Let your tone match the content.
->> User clicks Words card → SLD_CC00_011_CLICK_Words.mp3
+Card-Title-ToneOfVoice: How You Sound
+Card-Sig-ToneOfVoice: Tone of Voice
+Card-Bullets-ToneOfVoice: Warmth, pace, and confidence shape how your message lands | Certainty builds trust; hesitation creates doubt | Slow down when delivering difficult or unexpected news
 Voiceover-CLICK-Words: The words you choose matter — but they carry less weight than most people assume. Where words matter most is in precision and ownership. "I will take care of that" lands differently than "someone will handle it." Specific, first-person language signals accountability.
-Image: Clean minimal illustration of three overlapping signal rings — representing the three communication channels.
+Card-Title-Words: What You Say
+Card-Sig-Words: Words
+Card-Bullets-Words: Words carry less weight than tone or body language | Precision and ownership are where word choice matters most | "I will take care of that" signals accountability — vague language does not
 Status: Draft
 Notes: card-explore chosen — three parallel, equally weighted concepts. Each requires individual exploration before the learner can move on.
 ```
@@ -695,9 +720,12 @@ Left panel with stacked tab navigation buttons. Right side shows an image that u
 |-------|--------|-------|
 | `Slide-Title` | Section heading | Left panel heading |
 | `Voiceover-INTRO` | 2–3 sentences | Name the topic and tab count; invite exploration |
-| `Voiceover-TAB-Label` | One per tab, 2–4 sentences | Plays when tab is opened. Label = tab name in PascalCase |
+| `Voiceover-TAB-Label` | One per tab, 2–4 sentences | Plays when tab is opened. Label = tab name in PascalCase. **Must be followed immediately by `Tab-Body-Label`.** |
+| `Tab-Body-Label` | 1–3 sentences | On-screen text displayed in the tab content panel. Concise summary — not the full VO script. One field per tab, Label matches `Voiceover-TAB-Label`. |
 | `Image-File` | `descriptive_name_CCxx.webp` | Default/first-tab image |
 | `Caption-Text` | ≤120 chars | First sentence of INTRO VO |
+
+**Field ordering:** Write each `Voiceover-TAB-Label` immediately followed by its `Tab-Body-Label` on the next line. Parser uses the VO text as fallback if Tab-Body is absent, but the VO is too long for display — always include Tab-Body.
 
 **Audio file naming:** `{SLIDE_ID}_TAB_{Label}.mp3`
 
@@ -723,12 +751,13 @@ Caption-Text: There are four active listening techniques top Porsche advisors us
 Image-File: advisor_listening_CC00.webp
 >> User opens Paraphrase tab → SLD_CC00_013_TAB_Paraphrase.mp3
 Voiceover-TAB-Paraphrase: Paraphrasing is restating what the customer said in your own words — "So what I'm hearing is that the noise happens mostly at highway speeds, especially when you accelerate. Is that right?" It confirms understanding, gives the customer a chance to correct anything, and signals that you were fully listening. Use it before you start writing the work order.
->> User opens Clarify tab → SLD_CC00_013_TAB_Clarify.mp3
+Tab-Body-Paraphrase: Restate what the customer said in your own words. It confirms understanding and signals you were fully listening. Use it before writing the work order.
 Voiceover-TAB-Clarify: Clarifying questions fill in the gaps before they become problems. "When you say it feels off — is that more of a vibration, or more of a pull?" gets to the specific symptom before you've committed to a diagnosis. One precise clarifying question saves more time than three hours of rework.
->> User opens PerceptionCheck tab → SLD_CC00_013_TAB_PerceptionCheck.mp3
+Tab-Body-Clarify: Ask the one question that fills in the biggest gap. Precision now prevents rework later.
 Voiceover-TAB-PerceptionCheck: A perception check confirms you've read the customer's emotional state correctly. "You seem a little uncertain about whether this is worth addressing now — does that sound right?" It opens space for a concern the customer might not have volunteered on their own. Done well, it builds trust immediately.
->> User opens Summarize tab → SLD_CC00_013_TAB_Summarize.mp3
+Tab-Body-PerceptionCheck: Confirm you've read the customer's emotional state. Opens space for concerns they might not volunteer on their own.
 Voiceover-TAB-Summarize: Summarizing brings the intake conversation to a clear close — "So here's what we're going to look at today..." followed by everything you heard. It reduces miscommunication before work begins, gives the customer confidence that nothing was missed, and creates a natural transition to the work order.
+Tab-Body-Summarize: Close the intake by restating everything you heard. Reduces miscommunication and gives the customer confidence nothing was missed.
 Status: Draft
 Notes: tab-panel chosen — four techniques of equal weight; learner doesn't need to visit all. Reference implementation: SLD_CC03_009.html.
 ```
@@ -928,7 +957,8 @@ These IDs appear in the system's field reference but have no implementation or d
 | `Slide-Title` | All | Display title shown in course menu |
 | `Slide-Subtitle` | `tile-explore` | 1–2 sentence instructional intro displayed below the heading |
 | `Hero-Subtitle` | `hero-title` | e.g. `Module 3 of 12` |
-| `Objective-N` | `objectives` | Verb-first format. Parser stops at first missing number. Max 10. |
+| `Objective-N` | `objectives` | Verb-first format. Parser stops at first missing number. Max 10. Missing fields produce placeholder HTML — treat as build error. |
+| `VO-Cue-N` | `objectives` | Seconds from INTRO audio start for per-objective emphasis animation. Set after VO recording. |
 | `On-Screen-Text` | Most content templates | See per-template format notes — `content-stat` requires `VALUE Label` format |
 | `Pull-Quote` | `content-split` (optional) | Replaces `On-Screen-Text`. One sentence. Never use both. |
 | `Quote` | `content-quote` | ≤25 words for visual impact |
@@ -943,8 +973,10 @@ These IDs appear in the system's field reference but have no implementation or d
 | `Tile-Sig-Label` | `tile-explore` | Per-tile short keyword for badge: `Tile-Sig-AccurateDiagnosis: Accuracy` — sequence number auto-prepended |
 | `Tile-Bullets-Label` | `tile-explore` | Exactly 3 bullets pipe-separated: `Tile-Bullets-AccurateDiagnosis: Bullet 1 \| Bullet 2 \| Bullet 3` |
 | `Image-Label` | `tile-explore` | Per-tile image: `Image-AccurateDiagnosis: technician_CC00.webp` |
-| `Voiceover-TAB-Label` | `tab-panel` | PascalCase label: `Paraphrase` |
+| `Voiceover-TAB-Label` | `tab-panel` | PascalCase label: `Paraphrase` — follow immediately with `Tab-Body-Label` |
+| `Tab-Body-Label` | `tab-panel` | On-screen display text for each tab. 1–3 sentences. Must match the Label in `Voiceover-TAB-Label`. |
 | `Voiceover-STEP-NN` | `step-sequence` | Zero-padded: `01`, `02`, `03` |
+| `Bullet-1` through `Bullet-N` | `content-bullets` | One bullet per field, plain text, no leading dash. Parser stops at first missing number. Max 10. |
 | `Voiceover-Summary` | `video-scenario` (optional) | 2–3 sentences. Plays after video ends. |
 | `Caption-Text` | All slides with audio | ≤120 chars — first sentence or key phrase from INTRO VO |
 | `Question` | `knowledge-check`, `final-quiz` | Full question stem |

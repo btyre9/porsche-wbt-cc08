@@ -5,10 +5,11 @@
     "sync": "node scripts/sync-output.js",
     "package": "node scripts/sync-output.js && node scripts/package-scorm.js",
     "import-storyboard": "node scripts/import-storyboard.js",
-    "generate-vo": "node scripts/generate-vo.js",
+    "generate-vo": "node scripts/generate-vo.js --speaker 122",
     "generate-vtt": "node scripts/generate-vtt.js",
     "export-tts": "node scripts/export-tts.js",
-    "generate-slides": "node scripts/generate-slides.js"
+    "generate-slides": "node scripts/generate-slides.js",
+    "extract-vo-cues": "node scripts/extract-vo-cues.js"
   },
   "devDependencies": {
     "browser-sync": "^3.0.4",

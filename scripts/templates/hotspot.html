@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1920">
+  <title>{{SLIDE_TITLE}}</title>
+  <link rel="stylesheet" href="../assets/css/pds-tokens.css">
+  <link rel="stylesheet" href="../assets/css/slide-base.css">
+  <link rel="stylesheet" href="../assets/css/animations.css">
+  <script>(function(){function s(){document.documentElement.style.setProperty('--scale',Math.min(window.innerWidth/1920,window.innerHeight/920));}s();window.addEventListener('resize',s);})();</script>
+  <style>
+
+    /* ── Full-bleed background image ─────────────────────────────────────── */
+    .bg-image {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      z-index: 0;
+      display: block;
+    }
+
+    /* ── Dark scrim — heavier at top for title legibility ────────────────── */
+    .bg-scrim {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background:
+        linear-gradient(to bottom,
+          rgba(0,0,0,0.80)  0%,
+          rgba(0,0,0,0.28) 30%,
+          rgba(0,0,0,0.18) 62%,
+          rgba(0,0,0,0.55) 100%),
+        linear-gradient(to right,
+          rgba(0,0,0,0.35)  0%,
+          transparent      40%);
+      pointer-events: none;
+    }
+
+    /* ── Header — title + instruction, top-left ──────────────────────────── */
+    .slide-header {
+      position: absolute;
+      top: 72px;
+      left: 100px;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-width: 780px;
+    }
+
+    .red-accent {
+      width: 120px;
+      height: 6px;
+      background: var(--pds-accent);
+    }
+
+    .slide-title {
+      font-size: var(--pds-font-size-2xl);
+      font-weight: var(--pds-font-weight-bold);
+      line-height: 1.08;
+      color: var(--pds-text-primary);
+      margin: 0;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+    }
+
+    .slide-instruction {
+      font-size: var(--pds-font-size-sm);
+      color: rgba(255,255,255,0.70);
+      margin: 0;
+      line-height: 1.5;
+      text-shadow: 0 1px 6px rgba(0,0,0,0.4);
+    }
+
+    /* ── Hotspot markers layer ───────────────────────────────────────────── */
+    .hotspots-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    .hotspot-marker {
+      position: absolute;
+      width: 52px;
+      height: 52px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: rgba(213,0,28,0.88);
+      border: 2px solid rgba(255,255,255,0.65);
+      color: #FFFFFF;
+      font-family: var(--pds-font-family);
+      font-size: 18px;
+      font-weight: var(--pds-font-weight-bold);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: auto;
+      transition: transform 0.2s cubic-bezier(0,0,0.2,1), background 0.3s ease, border-color 0.3s ease;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.45);
+      outline: none;
+    }
+    .hotspot-marker:hover {
+      transform: translate(-50%, -50%) scale(1.18);
+      background: rgba(213,0,28,1);
+    }
+    .hotspot-marker:focus-visible {
+      outline: 2px solid rgba(255,255,255,0.80);
+      outline-offset: 3px;
+    }
+    .hotspot-marker.visited {
+      background: rgba(9,208,135,0.88);
+      border-color: rgba(9,208,135,0.90);
+    }
+    .hotspot-marker.is-locked {
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    /* Pulse ring */
+    .marker-pulse {
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 2px solid rgba(213,0,28,0.55);
+      animation: hotspot-pulse 2.4s ease-out infinite;
+      pointer-events: none;
+    }
+    .hotspot-marker.visited .marker-pulse {
+      border-color: rgba(9,208,135,0.40);
+      animation: none;
+      opacity: 0;
+    }
+
+    @keyframes hotspot-pulse {
+      0%   { transform: scale(1);    opacity: 0.85; }
+      65%  { transform: scale(2.0);  opacity: 0; }
+      100% { transform: scale(2.0);  opacity: 0; }
+    }
+
+    /* ── Progress counter — bottom-left ─────────────────────────────────── */
+    .hotspot-progress {
+      position: absolute;
+      bottom: 52px;
+      left: 100px;
+      z-index: 4;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .progress-track {
+      width: 240px;
+      height: 3px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--pds-accent);
+      border-radius: 2px;
+      transition: width 0.4s cubic-bezier(0,0,0.2,1), background 0.3s ease;
+    }
+    .progress-fill.is-complete { background: #09D087; }
+
+    .progress-label {
+      font-size: 12px;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 0.05em;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+    }
+
+    /* ── Modal backdrop ──────────────────────────────────────────────────── */
+    .modal-backdrop {
+      position: absolute;
+      inset: 0;
+      z-index: 8;
+      background: rgba(0,0,0,0.55);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .modal-backdrop.is-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* ── Modal card ──────────────────────────────────────────────────────── */
+    .modal-card {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      z-index: 9;
+      transform: translate(-50%, -50%) scale(0.94);
+      width: 680px;
+      background: #13131A;
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 8px;
+      padding: 52px 52px 48px 52px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0,0,0.2,1);
+      box-shadow: 0 32px 80px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.04);
+    }
+    .modal-card.is-open {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      color: rgba(255,255,255,0.55);
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s ease, color 0.2s ease;
+      font-family: var(--pds-font-family);
+      line-height: 1;
+    }
+    .modal-close:hover {
+      background: rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.90);
+    }
+
+    .modal-badge {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--pds-accent);
+      color: #FFFFFF;
+      font-size: 16px;
+      font-weight: var(--pds-font-weight-bold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-accent {
+      width: 120px;
+      height: 4px;
+      background: var(--pds-accent);
+      margin-bottom: 20px;
+    }
+
+    .modal-title {
+      font-size: var(--pds-font-size-xl);
+      font-weight: var(--pds-font-weight-bold);
+      color: var(--pds-text-primary);
+      line-height: 1.12;
+      margin: 0 0 20px 0;
+    }
+
+    .modal-body {
+      font-size: var(--pds-font-size-md);
+      color: rgba(255,255,255,0.72);
+      line-height: 1.65;
+      margin: 0;
+    }
+
+    /* ── Entrance animations ─────────────────────────────────────────────── */
+    .anim-block {
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .anim-block.is-visible { opacity: 1; transform: none; }
+
+  </style>
+</head>
+<body>
+
+<div class="slide" data-slide-id="{{SLIDE_ID}}">
+
+  <img class="bg-image" src="{{IMAGE_PATH}}" alt="" draggable="false"
+       onerror="this.style.display='none'">
+
+  <div class="bg-scrim" aria-hidden="true"></div>
+
+  <header class="slide-header">
+    <div class="red-accent anim-block" id="el-accent"></div>
+    <h1 class="slide-title anim-block" id="el-title">{{SLIDE_TITLE}}</h1>
+    <p class="slide-instruction anim-block" id="el-instruction">{{ON_SCREEN_TEXT}}</p>
+  </header>
+
+  <div class="hotspots-layer" id="hotspots-layer" aria-label="Interactive hotspots"></div>
+
+  <div class="hotspot-progress">
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+    <span class="progress-label" id="progress-label">0 of {{TOTAL_HOTSPOTS}} explored</span>
+  </div>
+
+  <div class="modal-backdrop" id="modal-backdrop" aria-hidden="true"></div>
+
+  <div class="modal-card" id="modal-card"
+       role="dialog" aria-modal="true" aria-labelledby="modal-title"
+       aria-hidden="true">
+    <button class="modal-close" id="modal-close" aria-label="Close">&#x2715;</button>
+    <div class="modal-badge" id="modal-badge" aria-hidden="true"></div>
+    <div class="modal-accent" aria-hidden="true"></div>
+    <h2 class="modal-title" id="modal-title"></h2>
+    <p class="modal-body" id="modal-body"></p>
+  </div>
+
+</div>
+
+<script>
+var HOTSPOT_DATA = {{HOTSPOT_DATA_JS}};
+var TOTAL_HOTSPOTS = {{TOTAL_HOTSPOTS}};
+</script>
+
+<script src="../assets/vendor/gsap/gsap.min.js"></script>
+<script src="../assets/vendor/slide-pause.js"></script>
+<script>
+(function () {
+
+  /* ── Entrance animations ───────────────────────────────────────────────── */
+  ['el-accent', 'el-title', 'el-instruction'].forEach(function (id, i) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    setTimeout(function () { el.classList.add('is-visible'); }, 80 + i * 120);
+  });
+
+  /* ── Build hotspot markers ─────────────────────────────────────────────── */
+  var layer = document.getElementById('hotspots-layer');
+
+  HOTSPOT_DATA.forEach(function (hs) {
+    var btn = document.createElement('button');
+    btn.className = 'hotspot-marker is-locked';
+    btn.setAttribute('data-id', hs.id);
+    btn.setAttribute('aria-label', 'Hotspot ' + hs.id + ': ' + hs.title);
+    btn.style.left = hs.x + '%';
+    btn.style.top  = hs.y + '%';
+    btn.innerHTML =
+      '<span class="marker-number" aria-hidden="true">' + hs.id + '</span>' +
+      '<span class="marker-pulse" aria-hidden="true"></span>';
+    layer.appendChild(btn);
+  });
+
+  /* ── State ──────────────────────────────────────────────────────────────── */
+  var visitedCount = 0;
+  var activeHotspot = null;
+
+  /* ── Modal elements ─────────────────────────────────────────────────────── */
+  var backdrop  = document.getElementById('modal-backdrop');
+  var card      = document.getElementById('modal-card');
+  var closeBtn  = document.getElementById('modal-close');
+  var badgeEl   = document.getElementById('modal-badge');
+  var titleEl   = document.getElementById('modal-title');
+  var bodyEl    = document.getElementById('modal-body');
+  var fillEl    = document.getElementById('progress-fill');
+  var labelEl   = document.getElementById('progress-label');
+
+  function updateProgress() {
+    var pct = (visitedCount / TOTAL_HOTSPOTS) * 100;
+    if (fillEl)  { fillEl.style.width = pct + '%'; if (visitedCount === TOTAL_HOTSPOTS) fillEl.classList.add('is-complete'); }
+    if (labelEl) labelEl.textContent = visitedCount + ' of ' + TOTAL_HOTSPOTS + ' explored';
+  }
+
+  function openModal(hs) {
+    activeHotspot = hs;
+    if (badgeEl)  badgeEl.textContent  = hs.id;
+    if (titleEl)  titleEl.textContent  = hs.title;
+    if (bodyEl)   bodyEl.textContent   = hs.body;
+
+    backdrop.classList.add('is-open');
+    backdrop.setAttribute('aria-hidden', 'false');
+    card.classList.add('is-open');
+    card.setAttribute('aria-hidden', 'false');
+    closeBtn.focus();
+
+    /* Mark visited if first time */
+    var marker = layer.querySelector('[data-id="' + hs.id + '"]');
+    if (marker && !marker.classList.contains('visited')) {
+      marker.classList.add('visited');
+      visitedCount++;
+      updateProgress();
+      /* Play VO + mark interaction with player */
+      if (hs.audioPath) {
+        window.parent.postMessage({
+          type: 'sandbox-play-interaction',
+          src:  hs.audioPath,
+          id:   hs.id,
+          pauseNarration: false,
+          resumeNarration: false
+        }, '*');
+      } else {
+        window.parent.postMessage({ type: 'sandbox-mark-interaction', id: hs.id }, '*');
+      }
+    }
+  }
+
+  function closeModal() {
+    backdrop.classList.remove('is-open');
+    backdrop.setAttribute('aria-hidden', 'true');
+    card.classList.remove('is-open');
+    card.setAttribute('aria-hidden', 'true');
+    /* Return focus to the hotspot that opened the modal */
+    if (activeHotspot) {
+      var marker = layer.querySelector('[data-id="' + activeHotspot.id + '"]');
+      if (marker) marker.focus();
+    }
+    activeHotspot = null;
+  }
+
+  /* ── Event listeners ────────────────────────────────────────────────────── */
+  layer.addEventListener('click', function (e) {
+    var btn = e.target.closest('.hotspot-marker');
+    if (!btn || btn.classList.contains('is-locked')) return;
+    var id = btn.getAttribute('data-id');
+    var hs = HOTSPOT_DATA.find(function (h) { return h.id === id; });
+    if (hs) openModal(hs);
+  });
+
+  closeBtn.addEventListener('click', closeModal);
+  backdrop.addEventListener('click', closeModal);
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && card.classList.contains('is-open')) closeModal();
+  });
+
+  /* ── INTRO lock — markers hidden until player signals VO complete ────────── */
+  function unlockHotspots() {
+    var markers = document.querySelectorAll('.hotspot-marker');
+    markers.forEach(function (el, i) {
+      setTimeout(function () {
+        el.classList.remove('is-locked');
+        el.style.opacity = '0';
+        el.style.transform = 'translate(-50%, -50%) scale(0.5)';
+        el.style.transition = 'opacity 0.4s ease, transform 0.4s cubic-bezier(0,0,0.2,1)';
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            el.style.opacity = '';
+            el.style.transform = '';
+          });
+        });
+      }, i * 120);
+    });
+  }
+
+  window.addEventListener('message', function (e) {
+    if (!e.data) return;
+    if (e.data.type === 'player-intro-state' && !e.data.locked) unlockHotspots();
+  });
+
+  try { if (!window.parent || !window.parent.CourseRuntime) unlockHotspots(); } catch (_) { unlockHotspots(); }
+
+  /* ── Register with player ───────────────────────────────────────────────── */
+  window.parent.postMessage({
+    type: 'sandbox-configure-interactions',
+    requiredIds: HOTSPOT_DATA.map(function (h) { return h.id; }),
+    finalCueSrc: 'assets/audio/vo/Click_Next.mp3',
+    lockNextUntilComplete: true
+  }, '*');
+
+}());
+</script>
+
+</body>
+</html>

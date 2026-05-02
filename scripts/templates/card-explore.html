@@ -110,6 +110,11 @@
     .tile-row:hover .tile:hover         { flex-grow: 1.3;  }
     .tile.is-active                     { flex-grow: 1.3;  }
 
+    /* Locked during INTRO VO */
+    .tile-row.intro-locked              { pointer-events: none; }
+    .tile-row.intro-locked .tile        { opacity: 0.45; filter: brightness(0.55); transition: opacity 0.4s ease, filter 0.4s ease; }
+    .tile-row:not(.intro-locked) .tile  { transition: flex-grow 0.6s cubic-bezier(0,0,0.2,1), opacity 0.4s ease, filter 0.4s ease; }
+
     /* Poster (background image) */
     .tile-poster {
       position: absolute;
@@ -413,27 +418,24 @@
   };
   var requiredIds = ["{{CARD_1_ID}}", "{{CARD_2_ID}}", "{{CARD_3_ID}}"];
 
-  /* Block tile clicks until the intro VO finishes playing */
-  var voUnlocked  = false;
-  var _wasPlaying = false;
+  /* Block tile clicks until the player signals INTRO VO is done */
+  var voUnlocked = false;
+  var tileRow = document.getElementById('tile-row');
+  if (tileRow) tileRow.classList.add('intro-locked');
 
-  (function pollVoEnd() {
+  function unlockTiles() {
     if (voUnlocked) return;
-    try {
-      var cr = window.parent && window.parent.CourseRuntime;
-      if (cr) {
-        var playing = cr.isAudioPlaying ? cr.isAudioPlaying() : false;
-        var t   = cr.getAudioCurrentTime ? cr.getAudioCurrentTime() : 0;
-        var dur = cr.getAudioDuration    ? cr.getAudioDuration()    : 0;
-        if (_wasPlaying && !playing && dur > 0 && t >= dur - 0.5) {
-          voUnlocked = true;
-          return;
-        }
-        _wasPlaying = playing;
-      }
-    } catch (_) {}
-    requestAnimationFrame(pollVoEnd);
-  }());
+    voUnlocked = true;
+    if (tileRow) tileRow.classList.remove('intro-locked');
+  }
+
+  window.addEventListener('message', function (e) {
+    if (!e.data) return;
+    if (e.data.type === 'player-intro-state' && !e.data.locked) unlockTiles();
+  });
+
+  /* Standalone / no-player fallback: unlock immediately */
+  try { if (!window.parent || !window.parent.CourseRuntime) unlockTiles(); } catch (_) { unlockTiles(); }
 
   window.parent.postMessage({
     type: 'sandbox-configure-interactions',

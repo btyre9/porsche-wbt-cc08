@@ -267,8 +267,16 @@
   function updateNavButtons() {
     var atEnd = state.slideIndex >= state.totalSlides - 1;
     var locked = state.nextLockedByAudio || state.nextLockedByInteraction;
-    $("btn-next").disabled = atEnd || locked;
-    $("btn-next").style.opacity = locked ? "0.35" : "";
+    var btn = $("btn-next");
+    var wasDisabled = btn.disabled;
+    btn.disabled = atEnd || locked;
+    btn.style.opacity = locked ? "0.35" : "";
+    // Pulse when transitioning from locked → unlocked (not on first render)
+    if (wasDisabled && !btn.disabled) {
+      btn.classList.remove("pulse-unlock");
+      void btn.offsetWidth; // force reflow to restart animation
+      btn.classList.add("pulse-unlock");
+    }
   }
 
   function resolveSlideAudioSrc(slide) {
@@ -526,33 +534,30 @@
     fill.style.width = String(Math.round(safe * 10000) / 100) + "%";
   }
 
-  function setAudioProgressEnabled(enabled) {
-    var bar = $("audio-progress");
-    if (!bar) return;
-    if (enabled) bar.classList.remove("disabled");
-    else bar.classList.add("disabled");
+  function setAudioProgressEnabled() { /* thin bar is always visible */ }
+
+  function resetProgressBar() {
+    var fill = $("audio-progress-fill");
+    if (!fill) return;
+    fill.style.transition = "none";
+    fill.style.width = "0%";
+    void fill.offsetWidth; // force reflow so next update animates normally
+    fill.style.transition = "";
   }
 
   function syncAudioProgress() {
-    var timerEl = $("audio-timer");
-    if (!state.audio) {
-      setAudioProgressRatio(0);
-      if (timerEl) timerEl.textContent = "0:00";
-      return;
-    }
-
-    var dur = Number(state.audio.duration);
-    var cur = Number(state.audio.currentTime);
+    // Show progress of whichever clip is currently playing
+    var src = (state.interactionAudio && !state.interactionAudio.paused)
+      ? state.interactionAudio
+      : state.audio;
+    if (!src) { setAudioProgressRatio(0); return; }
+    var dur = Number(src.duration);
+    var cur = Number(src.currentTime);
     if (!Number.isFinite(dur) || dur <= 0 || !Number.isFinite(cur) || cur < 0) {
       setAudioProgressRatio(0);
-      if (timerEl) timerEl.textContent = "0:00";
       return;
     }
     setAudioProgressRatio(cur / dur);
-    if (timerEl) {
-      var s = Math.floor(cur);
-      timerEl.textContent = Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
-    }
   }
 
   function setPlayPauseVisual(isPlaying) {
@@ -608,6 +613,7 @@
     if (state.cueEditor.open) updateCueCurrentTimeLabel();
     state.nextLockedByAudio = false;
     updateNavButtons();
+    postMessageToSlide({ type: 'player-intro-state', locked: false });
 
     if (maybePlayFinalNextCue()) return;
 
@@ -729,6 +735,7 @@
 
     // Load slide audio
     var audioSrc = resolveSlideAudioSrc(slides[i]);
+    resetProgressBar();
     if (audioSrc) {
       state.audio = new Audio("./" + audioSrc);
       state.audio.muted = state.muted;
@@ -873,6 +880,7 @@
   function toggleMute() {
     state.muted = !state.muted;
     if (state.audio) state.audio.muted = state.muted;
+    if (state.interactionAudio) state.interactionAudio.muted = state.muted;
 
     $("icon-vol-on").style.display = state.muted ? "none" : "";
     $("icon-vol-off").style.display = state.muted ? "" : "none";
@@ -1218,6 +1226,7 @@
     );
 
     stopInteractionAudio(false);
+    resetProgressBar();
 
     state.interactionAudioShouldResumeNarration = false;
     if (pauseNarration && narrationWasPlaying && state.audio) {
@@ -1226,6 +1235,7 @@
     }
 
     var channel = new Audio(url);
+    channel.muted = state.muted;
     var done = false;
 
     function finish(allowResume) {
@@ -1265,6 +1275,7 @@
     channel.addEventListener("timeupdate", onTimeUpdate);
     channel.addEventListener("ended", onEnded);
     channel.addEventListener("error", onError);
+    channel.addEventListener("timeupdate", syncAudioProgress);
 
     state.interactionAudio = channel;
     state.interactionAudioMeta = {
@@ -2054,6 +2065,7 @@
           if (e.data.id) markInteractionVisited(e.data.id);
           break;
         case "sandbox-play-interaction":
+          if (state.nextLockedByAudio) break; // INTRO VO still playing — block interactions
           if (e.data.clipId) {
             playInteractionClip(e.data.clipId, e.data.overrides);
           } else {
@@ -2184,7 +2196,11 @@
     });
     $("btn-replay").addEventListener("click", replayCurrentSlide);
     $("btn-speed").addEventListener("click", cyclePlaybackSpeed);
-    $("slide-frame").addEventListener("load", syncAudioUnlockFrameListeners);
+    $("slide-frame").addEventListener("load", function () {
+      syncAudioUnlockFrameListeners();
+      // Tell the newly-loaded slide whether INTRO is still locked
+      postMessageToSlide({ type: 'player-intro-state', locked: state.nextLockedByAudio });
+    });
     var audioStartOverlay = $("audio-start-overlay");
     if (audioStartOverlay) {
       audioStartOverlay.addEventListener("click", function (e) {

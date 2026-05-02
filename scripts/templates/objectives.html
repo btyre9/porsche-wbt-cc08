@@ -52,6 +52,15 @@
         rgba(20,20,24,0.7) 24px, rgba(20,20,24,0.7) 48px
       );
       border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 0.03em;
+      padding: 16px;
+      text-align: center;
     }
     .slide-image img {
       position: absolute;
@@ -171,7 +180,7 @@
 
   <!-- Right image panel -->
   <div class="slide-image" id="slide-image">
-    <div class="img-placeholder" aria-hidden="true"></div>
+    <div class="img-placeholder" aria-hidden="true">{{IMAGE_PLACEHOLDER_LABEL}}</div>
     {{IMAGE_HTML}}
   </div>
 

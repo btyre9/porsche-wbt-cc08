@@ -62,7 +62,7 @@ const PREFIX_FIRST_SLIDE_ID_RE = /^(SLD|KC|FQ)[_-]([A-Z]{2}\d+)[_-](\d{1,3}|SCOR
 
 const PREFERRED_KEY_ORDER = [
   'Slide-ID', 'Template-ID', 'Slide-Title', 'Audio-VO', 'Voiceover',
-  'Caption-Text', 'On-Screen-Text', 'Image', 'Video',
+  'Caption-Text', 'On-Screen-Text', 'Image-File', 'Image', 'Video',
   'Animation-Intro', 'Interaction-Type',
   'Question', 'Correct-Answer', 'Quiz-Group', 'Review-Slide',
   'Next-Cue', 'Subtitle', 'Notes', 'Status',
@@ -205,8 +205,17 @@ function isRecognizedFieldKey(key) {
   if (/^Voiceover-(INTRO|CLICK|TAB|STEP|SUMMARY)(-.+)?$/i.test(key)) return true;
   if (/^Choice-\d+$/i.test(key)) return true;
   if (/^Objective-\d+$/i.test(key)) return true;
+  if (/^Bullet-\d+$/i.test(key)) return true;
+  if (/^VO-Cue-\d+$/i.test(key)) return true;
   if (/^Animation-Element-.+$/i.test(key)) return true;
-  if (['Screen-Type', 'Interaction-Logic', 'Media-Specs', 'Source-Anchor', 'Timing', 'Dev-Notes'].includes(key)) {
+  if (/^Col-(Left|Right)-(Header|Body)$/i.test(key)) return true;
+  if (/^Stat-(Value|Label)$/i.test(key)) return true;
+  if (/^Quote-(Text|Attribution(-Name|-Title)?)$/i.test(key)) return true;
+  if (/^Card-(Title|Sig|Bullets|Image)-.+$/i.test(key)) return true;
+  if (/^Tab-(Title|Body|Sig|Image)-.+$/i.test(key)) return true;
+  if (/^Tile-(Title|Body|Sig|Image)-.+$/i.test(key)) return true;
+  if (['Screen-Type', 'Interaction-Logic', 'Media-Specs', 'Source-Anchor', 'Timing', 'Dev-Notes',
+       'Eyebrow', 'Hero-Subtitle', 'Image-File', 'Review-Slide'].includes(key)) {
     return true;
   }
   return false;
@@ -456,8 +465,8 @@ function parseSlideIdParts(slideId) {
     const num = /^\d+$/.test(cf[3]) ? cf[3].padStart(3, '0') : cf[3];
     return { prefix: cf[2], courseId: cf[1], slideNum: num };
   }
-  // Underscore format: SLD_CC01_001, KC_CC01_001, FQ_CC01_001
-  const us = upper.match(/^([A-Z]+)_([A-Z]{2}\d+)_(\d+|SCORE)$/);
+  // Underscore format: SLD_CC01_001, KC_CC01_001, FQ_CC01_001, SLD_CC08_016B
+  const us = upper.match(/^([A-Z]+)_([A-Z]{2}\d+)_(\d+[A-Z]?|SCORE)$/);
   if (us) {
     const num = /^\d+$/.test(us[3]) ? us[3].padStart(3, '0') : us[3];
     return { prefix: us[1], courseId: us[2], slideNum: num };

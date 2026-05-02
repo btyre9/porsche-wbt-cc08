@@ -73,6 +73,44 @@
       background-size: cover;
       background-position: center;
     }
+
+    /* ── Objective list ───────────────────────────────────────────────────── */
+    .obj-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .obj-item {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .obj-number {
+      flex-shrink: 0;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #D5001C;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 0.02em;
+    }
+
+    .obj-text {
+      font-size: 20px;
+      font-weight: 400;
+      line-height: 1.45;
+      color: rgba(251, 252, 255, 0.88);
+    }
   </style>
 </head>
 
@@ -95,9 +133,9 @@
         style="width: 1100px; left: 120px; top: 184px; position: absolute; color: white; font-size: var(--pds-font-size-md); font-weight: 400; line-height: 28px;">
         {{INTRO_TEXT}}</div>
 
-      <div style="width: 1100px; left: 120px; top: 242px; position: absolute; display: flex; flex-direction: column; gap: 26px;">
+      <ul class="obj-list" style="width: 1100px; left: 120px; top: 242px; position: absolute;">
         {{OBJECTIVES_HTML}}
-      </div>
+      </ul>
 
     </div>
   </div>

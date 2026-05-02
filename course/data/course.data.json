@@ -20,38 +20,38 @@
     },
     {
       "id": "SLD_CC08_003",
-      "title": "You Speak Technician. They Speak Human.",
+      "title": "You Think in Parts. They Think in Outcomes.",
       "audio_vo": "assets/audio/vo/SLD_CC08_003_INTRO.mp3"
     },
     {
       "id": "SLD_CC08_004",
-      "title": "The Feature-Function-Benefit Framework",
+      "title": "Feature. Function. Benefit.",
       "audio_vo": "assets/audio/vo/SLD_CC08_004_INTRO.mp3"
+    },
+    {
+      "id": "SLD_CC08_005",
+      "title": "F F B Applied: Porsche Genuine Parts",
+      "audio_vo": "assets/audio/vo/SLD_CC08_005_INTRO.mp3"
+    },
+    {
+      "id": "SLD_CC08_006",
+      "title": "Customers Need the \"Why\" — Not Just the \"What\"",
+      "audio_vo": "assets/audio/vo/SLD_CC08_006_INTRO.mp3"
+    },
+    {
+      "id": "SLD_CC08_007",
+      "title": "Same Issue. Three Different Conversations.",
+      "audio_vo": "assets/audio/vo/SLD_CC08_007_INTRO.mp3"
+    },
+    {
+      "id": "SLD_CC08_008",
+      "title": "Say It Before They Ask",
+      "audio_vo": "assets/audio/vo/SLD_CC08_008_INTRO.mp3"
     },
     {
       "id": "KC_CC08_001",
       "title": "Knowledge Check",
       "audio_vo": "assets/audio/vo/KC_CC08_001_INTRO.mp3"
-    },
-    {
-      "id": "SLD_CC08_006",
-      "title": "Communicating the Value of Porsche Genuine",
-      "audio_vo": "assets/audio/vo/SLD_CC08_006_INTRO.mp3"
-    },
-    {
-      "id": "SLD_CC08_007",
-      "title": "Matching Your Explanation to Your Customer",
-      "audio_vo": "assets/audio/vo/SLD_CC08_007_INTRO.mp3"
-    },
-    {
-      "id": "SLD_CC08_008",
-      "title": "Make the Technical Tangible",
-      "audio_vo": "assets/audio/vo/SLD_CC08_008_INTRO.mp3"
-    },
-    {
-      "id": "SLD_CC08_009",
-      "title": "See It in Action: The Serpentine Belt",
-      "audio_vo": "assets/audio/vo/SLD_CC08_009_INTRO.mp3"
     },
     {
       "id": "KC_CC08_002",
@@ -60,23 +60,48 @@
     },
     {
       "id": "SLD_CC08_011",
-      "title": "Your Turn: N-Spec Tire Recommendation",
+      "title": "When Technical Language Helps — and When It Doesn't",
       "audio_vo": "assets/audio/vo/SLD_CC08_011_INTRO.mp3"
     },
     {
       "id": "SLD_CC08_012",
-      "title": "Your Turn: Leaking Shock Absorbers",
+      "title": "Analogies That Actually Work",
       "audio_vo": "assets/audio/vo/SLD_CC08_012_INTRO.mp3"
     },
     {
       "id": "SLD_CC08_013",
-      "title": "The Credibility Balance",
+      "title": "Physical Evidence Builds the Case You're Already Making",
       "audio_vo": "assets/audio/vo/SLD_CC08_013_INTRO.mp3"
     },
     {
-      "id": "SLD_CC08_014",
+      "id": "KC_CC08_014",
+      "title": "Knowledge Check",
+      "audio_vo": "assets/audio/vo/KC_CC08_014_INTRO.mp3"
+    },
+    {
+      "id": "KC_CC08_015",
+      "title": "Knowledge Check",
+      "audio_vo": "assets/audio/vo/KC_CC08_015_INTRO.mp3"
+    },
+    {
+      "id": "SLD_CC08_016",
+      "title": "The Complete Explanation — Steps 1 to 4",
+      "audio_vo": "assets/audio/vo/SLD_CC08_016_INTRO.mp3"
+    },
+    {
+      "id": "SLD_CC08_016B",
+      "title": "The Complete Explanation — Steps 5 to 7",
+      "audio_vo": "assets/audio/vo/SLD_CC08_016B_INTRO.mp3"
+    },
+    {
+      "id": "SLD_CC08_017",
+      "title": "The Credibility Balance",
+      "audio_vo": "assets/audio/vo/SLD_CC08_017_INTRO.mp3"
+    },
+    {
+      "id": "SLD_CC08_018",
       "title": "Module 8 Complete",
-      "audio_vo": "assets/audio/vo/SLD_CC08_014_INTRO.mp3"
+      "audio_vo": "assets/audio/vo/SLD_CC08_018_INTRO.mp3"
     },
     {
       "id": "FQ_CC08_001",
@@ -104,31 +129,6 @@
       "audio_vo": "assets/audio/vo/FQ_CC08_005_INTRO.mp3"
     },
     {
-      "id": "FQ_CC08_006",
-      "title": "Final Assessment — Question 6",
-      "audio_vo": "assets/audio/vo/FQ_CC08_006_INTRO.mp3"
-    },
-    {
-      "id": "FQ_CC08_007",
-      "title": "Final Assessment — Question 7",
-      "audio_vo": "assets/audio/vo/FQ_CC08_007_INTRO.mp3"
-    },
-    {
-      "id": "FQ_CC08_008",
-      "title": "Final Assessment — Question 8",
-      "audio_vo": "assets/audio/vo/FQ_CC08_008_INTRO.mp3"
-    },
-    {
-      "id": "FQ_CC08_009",
-      "title": "Final Assessment — Question 9",
-      "audio_vo": "assets/audio/vo/FQ_CC08_009_INTRO.mp3"
-    },
-    {
-      "id": "FQ_CC08_010",
-      "title": "Final Assessment — Question 10",
-      "audio_vo": "assets/audio/vo/FQ_CC08_010_INTRO.mp3"
-    },
-    {
       "id": "FQ_CC08_SCORE",
       "title": "Module 8 Assessment Results",
       "audio_vo": "assets/audio/vo/FQ_CC08_SCORE_INTRO.mp3"
@@ -142,12 +142,7 @@
         "FQ_CC08_002",
         "FQ_CC08_003",
         "FQ_CC08_004",
-        "FQ_CC08_005",
-        "FQ_CC08_006",
-        "FQ_CC08_007",
-        "FQ_CC08_008",
-        "FQ_CC08_009",
-        "FQ_CC08_010"
+        "FQ_CC08_005"
       ]
     }
   }

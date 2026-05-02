@@ -117,6 +117,15 @@
         #0E0E12 0px, #0E0E12 24px,
         #141418 24px, #141418 48px
       );
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 0.03em;
+      padding: 16px;
+      text-align: center;
     }
     .closing-image img {
       position: absolute;
@@ -171,7 +180,7 @@
 
     <!-- Right: image -->
     <div class="closing-image anim-block" id="el-image">
-      <div class="img-placeholder" aria-hidden="true"></div>
+      <div class="img-placeholder" aria-hidden="true">{{IMAGE_PLACEHOLDER_LABEL}}</div>
       {{IMAGE_HTML}}
     </div>
 

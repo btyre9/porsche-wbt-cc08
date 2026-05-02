@@ -39,6 +39,15 @@
         #0E0E12 0px, #0E0E12 24px,
         #141418 24px, #141418 48px
       );
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 0.03em;
+      padding: 16px;
+      text-align: center;
     }
     .split-right img {
       position: absolute;
@@ -85,7 +94,7 @@
     .deco-bar:nth-child(2) { top: 340px; height: 220px; opacity: 0.70; }
     .deco-bar:nth-child(3) { top: 580px; height: 200px; opacity: 0.45; }
 
-    /* ── Content area — title near top ───────────────────────────────────── */
+    /* ── Content area — title at top, callout anchors to bottom ──────────── */
     .content-area {
       position: absolute;
       left: 100px; top: 0;
@@ -95,7 +104,7 @@
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
-      padding-top: 88px;
+      padding: 80px 0 72px;
     }
 
     /* ── Red accent bar ───────────────────────────────────────────────────── */
@@ -187,6 +196,25 @@
       color: var(--pds-contrast-high);
     }
 
+    /* ── Bottom callout — anchors to bottom of content area ─────────────── */
+    .callout-box {
+      margin-top: auto;
+      border-left: 4px solid var(--pds-accent);
+      padding: 18px 24px;
+      background: rgba(213, 0, 28, 0.07);
+      max-width: 820px;
+    }
+    .callout-box p {
+      font-size: var(--pds-font-size-lg);
+      font-weight: var(--pds-font-weight-semibold);
+      line-height: 1.45;
+      color: var(--pds-text-primary);
+      margin: 0;
+    }
+    .callout-box strong {
+      color: var(--pds-accent);
+    }
+
     /* ── Entrance animation ───────────────────────────────────────────────── */
     .anim-block {
       opacity: 0;
@@ -242,12 +270,15 @@
         </div>
       </div>
 
+      <!-- Bottom callout — anchored via margin-top: auto (absent when field is empty) -->
+      {{CALLOUT_HTML}}
+
     </div>
   </div>
 
   <!-- Right photo -->
   <div class="split-right">
-    <div class="img-placeholder" aria-hidden="true"></div>
+    <div class="img-placeholder" aria-hidden="true">{{IMAGE_PLACEHOLDER_LABEL}}</div>
     {{IMAGE_HTML}}
   </div>
 
@@ -272,10 +303,10 @@
   if (columns && colHeaders.length === 0 && colBullets.length === 0) columns.style.display = 'none';
 
   /* Stagger entrance */
-  var loadEls    = ['el-eyebrow', 'el-headline', 'el-intro', 'el-bullets', 'el-columns']
+  var loadEls    = ['el-eyebrow', 'el-headline', 'el-intro', 'el-bullets', 'el-columns', 'el-callout']
                      .map(function (id) { return document.getElementById(id); })
                      .filter(function (el) { return el && el.style.display !== 'none'; });
-  var loadDelays = [0, 100, 240, 380, 380];
+  var loadDelays = [0, 100, 240, 380, 380, 500];
 
   requestAnimationFrame(function () {
     requestAnimationFrame(function () {

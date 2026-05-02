@@ -56,6 +56,7 @@
       justify-content: space-between;
       padding: 0 16px;
       z-index: 10;
+      position: relative;
     }
     .top-left {
       display: flex;
@@ -305,19 +306,17 @@
       display: block;
       margin-left: 36px;
     }
-    .bottom-center {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 12px;
-    }
-    .audio-timer {
-      color: rgba(255,255,255,0.7);
-      font-size: 13px;
-      font-weight: 700;
-      font-variant-numeric: tabular-nums;
-      letter-spacing: 0.5px;
-      white-space: nowrap;
+    /* Thin clip-progress bar — bottom edge of top bar */
+    .audio-progress {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 0;
+      overflow: hidden;
+      pointer-events: none;
     }
 
     .bottom-controls {
@@ -359,15 +358,6 @@
     }
     .ctrl-btn.active svg { fill: #d5001c; }
 
-    .audio-progress {
-      width: min(520px, 58vw);
-      height: 6px;
-      border-radius: 999px;
-      background: rgba(235, 235, 235, 0.24);
-      overflow: hidden;
-      pointer-events: none;
-    }
-    .audio-progress.disabled { opacity: 0.4; }
     .audio-progress-fill {
       width: 0%;
       height: 100%;
@@ -385,6 +375,12 @@
     }
     .ctrl-btn-next:hover { background: #b0001a; }
     .ctrl-btn-next:disabled { background: #d5001c; opacity: 0.3; }
+    @keyframes pulse-unlock {
+      0%   { box-shadow: 0 0 0 0 rgba(213,0,28,0.75); }
+      60%  { box-shadow: 0 0 0 10px rgba(213,0,28,0); }
+      100% { box-shadow: 0 0 0 0 rgba(213,0,28,0); }
+    }
+    .ctrl-btn-next.pulse-unlock { animation: pulse-unlock 0.55s ease-out 2; }
     .next-label {
       color: #fff;
       font-family: 'Porsche Next TT', Arial, Helvetica, sans-serif;
@@ -650,6 +646,10 @@
 
   <!-- Top bar -->
   <div class="top-bar">
+    <!-- Clip progress — thin red line at bottom edge, tracks active audio clip -->
+    <div class="audio-progress" id="audio-progress">
+      <div class="audio-progress-fill" id="audio-progress-fill"></div>
+    </div>
     <div class="top-left">
       <button class="menu-btn" id="btn-menu">
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m18 16v1h-12v-1zm0-5v1h-12v-1zm0-5v1h-12v-1z"/></svg>
@@ -691,14 +691,6 @@
       <svg viewBox="0 0 4500 300" xmlns="http://www.w3.org/2000/svg">
         <path fill="#fff" d="M502,221c48.1,0,74-25.9,74-74V74c0-48.1-25.9-74-74-74H0v300h68v-79H502z M508,78v65c0,7.8-4.2,12-12,12H68V66h428C503.8,66,508,70.2,508,78z M736,300c-48.1,0-74-25.9-74-74V74c0-48.1,25.9-74,74-74h417c48.1,0,74,25.9,74,74v152c0,48.1-25.9,74-74,74H736z M1147,234c7.8,0,12-4.2,12-12V78c0-7.8-4.2-12-12-12H742c-7.8,0-12,4.2-12,12v144c0,7.8,4.2,12,12,12H1147z M1822,198c39.8444,16.7574,67.8527,56.1,68,102h-68c0-54-25-79-79-79h-361v79h-68V0h502c48.1,0,74,25.9,74,74v50.14C1890,170.2,1866.25,195.9,1822,198z M1810,155c7.8,0,12-4.2,12-12V78c0-7.8-4.2-12-12-12h-428v89H1810z M1972,74c0-48.1,25.9-74,74-74h492v56h-486c-7.8,0-12,4.2-12,12v42c0,7.8,4.2,12,12,12h422c48.1,0,74,25.9,74,74v30c0,48.1-25.9,74-74,74h-492v-56h486c7.8,0,12-4.2,12-12v-42c0-7.8-4.2-12-12-12h-422c-48.1,0-74-25.9-74-74V74z M2633,74c0-48.1,25.9-74,74-74h480v66h-474c-7.8,0-12,4.2-12,12v144c0,7.8,4.2,12,12,12h474v66h-480c-48.1,0-74-25.9-74-74V74z M3817,0v300h-68V183h-407v117h-68V0h68v117h407V0H3817z M3973,56v66h527v56h-527v66h527v56h-595V0h595v56H3973z"/>
       </svg>
-    </div>
-
-    <div class="bottom-center">
-      <!-- Audio Progress (visual only) -->
-      <div class="audio-progress disabled" id="audio-progress" title="Audio progress (visual only)">
-        <div class="audio-progress-fill" id="audio-progress-fill"></div>
-      </div>
-      <span class="audio-timer" id="audio-timer">0:00</span>
     </div>
 
     <div class="bottom-controls">

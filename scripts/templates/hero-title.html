@@ -23,18 +23,19 @@
       display: block;
     }
 
-    /* ── Gradient scrim — blends image into dark left panel ──────────────── */
+    /* ── Gradient scrim — smooth dark-left to transparent-right overlay ─── */
     .hero-scrim {
       position: absolute;
       inset: 0;
       z-index: 2;
       background: linear-gradient(
         to right,
-        var(--pds-bg-base)          0%,
-        var(--pds-bg-base)          28%,
-        rgba(14, 14, 18, 0.82)      50%,
-        rgba(14, 14, 18, 0.20)      70%,
-        transparent                100%
+        rgba(14, 14, 18, 1.00)      0%,
+        rgba(14, 14, 18, 0.92)     18%,
+        rgba(14, 14, 18, 0.72)     38%,
+        rgba(14, 14, 18, 0.35)     60%,
+        rgba(14, 14, 18, 0.05)     80%,
+        transparent               100%
       );
       pointer-events: none;
     }

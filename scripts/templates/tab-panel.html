@@ -259,9 +259,33 @@
     }
   }
 
+  /* ── INTRO lock: tabs disabled until player signals VO complete ─────────── */
+  var tabsLocked = true;
+  if (tabsNav) tabsNav.style.pointerEvents = 'none';
+
+  function unlockTabs() {
+    if (!tabsLocked) return;
+    tabsLocked = false;
+    if (tabsNav) tabsNav.style.pointerEvents = '';
+    /* Auto-activate first tab after INTRO */
+    if (buttons.length > 0) activateTab(buttons[0]);
+  }
+
+  window.addEventListener('message', function (e) {
+    if (!e.data) return;
+    if (e.data.type === 'player-intro-state' && !e.data.locked) unlockTabs();
+  });
+
+  /* Standalone / no-player fallback: unlock immediately */
+  try { if (!window.parent || !window.parent.CourseRuntime) unlockTabs(); } catch (_) { unlockTabs(); }
+
+  /* ── Tab click/keyboard handlers ──────────────────────────────────────── */
   buttons.forEach(function (btn) {
-    btn.addEventListener('click', function () { activateTab(btn); });
+    btn.addEventListener('click', function () {
+      if (!tabsLocked) activateTab(btn);
+    });
     btn.addEventListener('keydown', function (e) {
+      if (tabsLocked) return;
       var idx = buttons.indexOf(btn);
       if (e.key === 'ArrowRight') {
         e.preventDefault();
@@ -276,21 +300,6 @@
       }
     });
   });
-
-  /* Play first tab's VO on load */
-  if (buttons.length > 0) {
-    var firstAudio = buttons[0].getAttribute('data-audio');
-    var firstLabel = buttons[0].getAttribute('data-tab');
-    if (firstAudio) {
-      window.parent.postMessage({
-        type: 'sandbox-play-interaction',
-        src: firstAudio,
-        id: firstLabel,
-        pauseNarration: true,
-        resumeNarration: false
-      }, '*');
-    }
-  }
 
 }());
 </script>

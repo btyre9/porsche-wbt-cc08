@@ -1,7 +1,23 @@
 {
-  "Porsche": "Porsha",
-  "WBT":     "W B T",
-  "PPE":     "P P E",
-  "HV":      "high voltage",
-  "SCORM":   "score-m"
+  "Porsche":     "POR-shuh",
+  "Cayenne":     "Kai-yen",
+  "Macan":       "Mah-kahn",
+  "Taycan":      "Tie-kahn",
+  "Panamera":    "Pan-uh-mare-uh",
+  "Cayman":      "Kay-men",
+  "Carrera":     "Kuh-rair-uh",
+  "Targa":       "Tar-guh",
+  "Boxster":     "Box-ter",
+  "Cayenne GTS": "Kai-yen G T S",
+  "PDK":         "P D K",
+  "PASM":        "P A S M",
+  "PCM":         "P C M",
+  "PDCC":        "P D C C",
+  "PTV":         "P T V",
+  "WBT":         "W B T",
+  "PPE":         "P P E",
+  "HV":          "high voltage",
+  "SCORM":       "score-m",
+  "kPa":         "kilopascals",
+  "FFB":         "F F B"
 }

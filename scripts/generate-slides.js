@@ -222,13 +222,15 @@ function buildObjectivesIdsJs(slide) {
 }
 
 function buildVoCueTimesJs(slide) {
-  const nulls = [];
+  const values = [];
   for (let i = 1; i <= 10; i++) {
     if (!slide[`Objective-${i}`]) break;
-    nulls.push('null');
+    const cue = slide[`VO-Cue-${i}`];
+    const isNull = !cue || cue.trim() === 'null';
+    values.push(isNull ? 'null' : String(parseFloat(cue)));
   }
-  if (nulls.length === 0) nulls.push('null', 'null', 'null');
-  return '[' + nulls.join(', ') + ']';
+  if (values.length === 0) values.push('null', 'null', 'null');
+  return '[' + values.join(', ') + ']';
 }
 
 // ---------------------------------------------------------------------------
@@ -249,6 +251,56 @@ function buildCardsHtml(triggers) {
       `      </div>`
     );
   }).join('\n');
+}
+
+function camelToKebab(str) {
+  return str
+    .replace(/([a-z])([A-Z])/g, '$1-$2')
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1-$2')
+    .toLowerCase();
+}
+
+const CARD_PLACEHOLDER_IMAGES = [
+  '992_targa_bg.webp',
+  'man-panemera.webp',
+  'red_911_woman.webp',
+  'placeholder.webp',
+];
+
+function buildPerCardTokens(slide, clicks) {
+  const tokens = {};
+  clicks.forEach((card, i) => {
+    const n      = i + 1;
+    const p      = `CARD_${n}`;
+    const label  = card.label;
+    const num    = String(n).padStart(2, '0');
+    const title  = slide[`Card-Title-${label}`] || camelToWords(label);
+    const sig    = slide[`Card-Sig-${label}`]   || camelToWords(label);
+    const imgFile= slide[`Card-Image-${label}`] || CARD_PLACEHOLDER_IMAGES[i % CARD_PLACEHOLDER_IMAGES.length];
+    const bulletsRaw = slide[`Card-Bullets-${label}`] || '';
+    const bulletsHtml = bulletsRaw
+      ? bulletsRaw.split('|').map(s => s.trim()).filter(Boolean)
+          .map(s => `          <li>${escHtml(s)}</li>`).join('\n')
+      : '          <!-- Add bullet content here -->';
+
+    tokens[`${p}_ID`]      = label;
+    tokens[`${p}_NUMBER`]  = num;
+    tokens[`${p}_LABEL`]   = escHtml(sig);
+    tokens[`${p}_TITLE`]   = escHtml(title);
+    tokens[`${p}_IMAGE`]   = `../assets/images/${imgFile}`;
+    tokens[`${p}_BULLETS`] = bulletsHtml;
+    tokens[`${p}_AUDIO`]   = card.audioPath;
+    tokens[`${p}_HREF`]    = '#' + camelToKebab(label);
+  });
+
+  tokens['SLIDE_SUBTITLE'] = escHtml(slide['On-Screen-Text'] || '');
+
+  const nextCue = slide['Next-Cue'];
+  tokens['FINAL_CUE_SRC'] = nextCue
+    ? `'assets/audio/vo/${nextCue.trim().replace(/\.mp3$/i, '')}.mp3'`
+    : "'assets/audio/vo/Click_Next.mp3'";
+
+  return tokens;
 }
 
 function buildCardAudioMap(triggers) {
@@ -316,6 +368,115 @@ ${audioMap}
 }
 
 // ---------------------------------------------------------------------------
+// Tile items (tile-explore template)
+// ---------------------------------------------------------------------------
+
+function buildTilesHtml(slide, tiles) {
+  const nums = ['01', '02', '03', '04', '05'];
+  return tiles.map((t, idx) => {
+    const label      = t.label;
+    const num        = nums[idx] || String(idx + 1).padStart(2, '0');
+    const title      = slide[`Tile-Title-${label}`] || camelToWords(label);
+    const sig        = slide[`Tile-Sig-${label}`]   || camelToWords(label);
+    const imgFile    = slide[`Image-${label}`]       || CARD_PLACEHOLDER_IMAGES[idx % CARD_PLACEHOLDER_IMAGES.length];
+    const imgSrc     = `../assets/images/${imgFile}`;
+    const bulletsRaw = slide[`Tile-Bullets-${label}`] || '';
+    const bulletsHtml = bulletsRaw
+      ? bulletsRaw.split('|').map(s => s.trim()).filter(Boolean)
+          .map(s => `          <li>${escHtml(s)}</li>`).join('\n')
+      : '          <!-- Add bullet content here -->';
+
+    return (
+      `    <article class="tile" data-card="${escAttr(label)}" id="card-${escAttr(label)}"\n` +
+      `             role="button" tabindex="0" aria-label="Explore ${escHtml(title)}">\n` +
+      `      <div class="tile-placeholder" aria-hidden="true">${escHtml(imgFile)}</div>\n` +
+      `      <img class="tile-poster" src="${escAttr(imgSrc)}" alt="" aria-hidden="true"\n` +
+      `           onerror="this.style.display='none'">\n` +
+      `      <div class="tile-dim" aria-hidden="true"></div>\n` +
+      `      <div class="tile-signature">\n` +
+      `        <span class="tile-signature__mark">${num} &middot; ${escHtml(sig)}</span>\n` +
+      `        <span class="tile-signature__divider" aria-hidden="true"></span>\n` +
+      `      </div>\n` +
+      `      <div class="tile-content">\n` +
+      `        <h2 class="tile-title">${escHtml(title)}</h2>\n` +
+      `        <ul class="tile-bullets">\n` +
+      `${bulletsHtml}\n` +
+      `        </ul>\n` +
+      `        <div class="tile-cta-row">\n` +
+      `          <span class="tile-cta">Explore</span>\n` +
+      `          <span class="tile-cta__arrow" aria-hidden="true">&rarr;</span>\n` +
+      `        </div>\n` +
+      `      </div>\n` +
+      `    </article>`
+    );
+  }).join('\n');
+}
+
+function buildTileInitScript(tiles) {
+  if (!tiles.length) return '';
+  const audioMap   = tiles.map(t => `    ${JSON.stringify(t.label)}: ${JSON.stringify(t.audioPath)}`).join(',\n');
+  const reqIds     = JSON.stringify(tiles.map(t => t.label));
+  return (
+    `<script>\n` +
+    `(function () {\n` +
+    `  var AUDIO_MAP = {\n${audioMap}\n  };\n` +
+    `  var requiredIds = ${reqIds};\n\n` +
+    `  var voUnlocked = false;\n` +
+    `  var tileRow = document.getElementById('tile-row');\n` +
+    `  if (tileRow) tileRow.classList.add('intro-locked');\n\n` +
+    `  function unlockTiles() {\n` +
+    `    if (voUnlocked) return;\n` +
+    `    voUnlocked = true;\n` +
+    `    if (tileRow) tileRow.classList.remove('intro-locked');\n` +
+    `  }\n\n` +
+    `  window.addEventListener('message', function (e) {\n` +
+    `    if (!e.data) return;\n` +
+    `    if (e.data.type === 'player-intro-state' && !e.data.locked) unlockTiles();\n` +
+    `  });\n` +
+    `  try { if (!window.parent || !window.parent.CourseRuntime) unlockTiles(); } catch (_) { unlockTiles(); }\n\n` +
+    `  window.parent.postMessage({\n` +
+    `    type: 'sandbox-configure-interactions',\n` +
+    `    requiredIds: requiredIds,\n` +
+    `    finalCueSrc: 'assets/audio/vo/Click_Next.mp3',\n` +
+    `    lockNextUntilComplete: true\n` +
+    `  }, '*');\n\n` +
+    `  function playTile(label) {\n` +
+    `    var src = AUDIO_MAP[label];\n` +
+    `    if (!src) return;\n` +
+    `    window.parent.postMessage({\n` +
+    `      type: 'sandbox-play-interaction',\n` +
+    `      src: src, id: label, pauseNarration: true, resumeNarration: true\n` +
+    `    }, '*');\n` +
+    `  }\n\n` +
+    `  function activateTile(tile) {\n` +
+    `    if (!tile || !voUnlocked) return;\n` +
+    `    var label = tile.getAttribute('data-card');\n` +
+    `    document.querySelectorAll('.tile').forEach(function (t) {\n` +
+    `      if (t !== tile) t.classList.remove('is-active');\n` +
+    `    });\n` +
+    `    tile.classList.add('is-active');\n` +
+    `    tile.classList.add('visited');\n` +
+    `    playTile(label);\n` +
+    `  }\n\n` +
+    `  document.addEventListener('DOMContentLoaded', function () {\n` +
+    `    document.querySelectorAll('.tile').forEach(function (tile) {\n` +
+    `      tile.addEventListener('click', function () { activateTile(tile); });\n` +
+    `      tile.addEventListener('keydown', function (e) {\n` +
+    `        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activateTile(tile); }\n` +
+    `      });\n` +
+    `    });\n` +
+    `  });\n\n` +
+    `  window.addEventListener('message', function (e) {\n` +
+    `    if (!e.data || e.data.type !== 'player-interaction-progress') return;\n` +
+    `    var tile = document.getElementById('card-' + e.data.id);\n` +
+    `    if (tile) tile.classList.add('visited');\n` +
+    `  });\n` +
+    `}());\n` +
+    `<\/script>`
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Choice items (KC / FQ templates)
 // ---------------------------------------------------------------------------
 
@@ -360,6 +521,48 @@ function buildKCChoicesHtml(slide) {
     );
   }
   return items.join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// Match pairs (drag-match template)
+// Reads Match-N-Item / Match-N-Target pairs until a number is missing.
+// Returns a JSON string safe to embed as: var MATCH_DATA = {{MATCH_DATA_JS}};
+// ---------------------------------------------------------------------------
+
+function buildMatchDataJs(slide) {
+  const pairs = [];
+  for (let i = 1; i <= 10; i++) {
+    const item   = (slide[`Match-${i}-Item`]   || '').trim();
+    const target = (slide[`Match-${i}-Target`] || '').trim();
+    if (!item || !target) break;
+    pairs.push({ id: String(i), item, target });
+  }
+  if (!pairs.length) return '[]';
+  return JSON.stringify(pairs, null, 2);
+}
+
+// ---------------------------------------------------------------------------
+// buildHotspotDataJs — returns JSON array for hotspot template
+// Reads: Hotspot-N-X, Hotspot-N-Y, Hotspot-N-Title, Hotspot-N-Body (up to 10)
+// Audio path derived from slideId + hotspot index (may be empty string if no file)
+// ---------------------------------------------------------------------------
+
+function buildHotspotDataJs(slide, slideId) {
+  const spots = [];
+  for (let i = 1; i <= 10; i++) {
+    const x     = (slide[`Hotspot-${i}-X`]     || '').trim();
+    const y     = (slide[`Hotspot-${i}-Y`]     || '').trim();
+    const title = (slide[`Hotspot-${i}-Title`] || '').trim();
+    const body  = (slide[`Hotspot-${i}-Body`]  || '').trim();
+    if (!x && !title) break;
+    const voKey = `Voiceover-CLICK-Hotspot${i}`;
+    const audioPath = slide[voKey]
+      ? `../assets/audio/vo/${slideId}_CLICK_Hotspot${i}.mp3`
+      : '';
+    spots.push({ id: String(i), x: parseFloat(x) || 0, y: parseFloat(y) || 0, title, body, audioPath });
+  }
+  if (!spots.length) return '[]';
+  return JSON.stringify(spots, null, 2);
 }
 
 // ---------------------------------------------------------------------------
@@ -465,6 +668,7 @@ function buildTokens(slide, allSlides, courseTitle, templateHtml) {
   const imageFile   = slide['Image-File'];
   const imageSrc    = imageFile ? `../assets/images/${imageFile}` : null;
   const imagePath   = imageSrc || '../assets/images/placeholder.webp';
+  const imagePlaceholderLabel = imageFile || '';
 
   const { value: statValue, label: statLabel } = splitStat(onScreen || slideTitle, slideTitle);
   const clicks = extractClickTriggers(slide, slideId);
@@ -493,7 +697,7 @@ function buildTokens(slide, allSlides, courseTitle, templateHtml) {
 
   // Image HTML — img with onerror placeholder fallback
   const imageHtml = imageSrc
-    ? `<img src="${escAttr(imageSrc)}" alt="" draggable="false">`
+    ? `<img src="${escAttr(imageSrc)}" alt="" draggable="false" onerror="this.style.display='none'">`
     : '';
 
   const eyebrow = slide['Eyebrow'] || courseTitle;
@@ -510,7 +714,18 @@ function buildTokens(slide, allSlides, courseTitle, templateHtml) {
     .replace(/_SCORE$/i, '_results')
     .replace(/-SCORE$/i, '-results');
 
+  const perCard = buildPerCardTokens(slide, clicks);
+
+  // tile-explore: dynamic tile HTML + interaction script
+  const isTileExplore = templateId === 'tile-explore';
+  const tilesHtml     = isTileExplore ? buildTilesHtml(slide, clicks) : '';
+  const tileInitScript= isTileExplore ? buildTileInitScript(clicks)   : '';
+
   const tokens = {
+    ...perCard,
+    ...(isTileExplore ? { SLIDE_SUBTITLE: escHtml(slide['Slide-Subtitle'] || slide['On-Screen-Text'] || '') } : {}),
+    TILES_HTML:        tilesHtml,
+    TILE_INIT_SCRIPT:  tileInitScript,
     SLIDE_ID:       slideId,
     SLIDE_TITLE:    escHtml(slideTitle),
     EYEBROW:        escHtml(eyebrow),
@@ -518,8 +733,9 @@ function buildTokens(slide, allSlides, courseTitle, templateHtml) {
     HERO_SUBTITLE:  escHtml(heroSubtitle),
     MODULE_LABEL:   escHtml(courseTitle),
     IMAGE_PATH:     imagePath,
-    IMAGE_FILE:     imageFile || 'placeholder.webp',
-    IMAGE_HTML:     imageHtml,
+    IMAGE_FILE:              imageFile || 'placeholder.webp',
+    IMAGE_HTML:              imageHtml,
+    IMAGE_PLACEHOLDER_LABEL: imagePlaceholderLabel,
     QUIZ_RESULTS_KEY: quizResultsKey,
     // Stat template
     STAT_VALUE:     escHtml(statValue),
@@ -573,6 +789,20 @@ function buildTokens(slide, allSlides, courseTitle, templateHtml) {
     CORRECT_ANSWER:  String(correctNum),
     REVIEW_SLIDE:    slide['Review-Slide'] || '',
     QUESTION_NUMBER: String(fqNum),
+    // drag-match template
+    MATCH_DATA_JS:   buildMatchDataJs(slide),
+    TOTAL_PAIRS:     String((function () {
+      let n = 0;
+      while ((slide[`Match-${n + 1}-Item`] || '').trim()) n++;
+      return n;
+    })()),
+    // hotspot template
+    HOTSPOT_DATA_JS: buildHotspotDataJs(slide, slide['Slide-ID'] || ''),
+    TOTAL_HOTSPOTS:  String((function () {
+      let n = 0;
+      while ((slide[`Hotspot-${n + 1}-Title`] || '').trim()) n++;
+      return n;
+    })()),
   };
 
   return tokens;

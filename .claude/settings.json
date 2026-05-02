@@ -4,7 +4,14 @@
       "Read(//c/Users/ALIBI8I/.claude/projects/g--My-Drive-00-Projects-Porsche-WBT-Template/memory/**)",
       "Read(//g/My Drive/00-Projects/CC02/output/**)",
       "Read(//g/My Drive/00-Projects/CC02/**)",
-      "Read(//g/My Drive/00-Projects/**)"
+      "Read(//g/My Drive/00-Projects/**)",
+      "Bash(grep -A 60 \"^### \\\\`tab-panel\\\\`\" /Users/home/Documents/Porsche-WBT-CC08/TEMPLATE-REFERENCE.md)",
+      "Read(//private/tmp/**)",
+      "Bash(rm /Users/home/Documents/Porsche-WBT-CC08/course/slides/*.html)",
+      "Bash(rm /Users/home/Documents/Porsche-WBT-CC08/course/slides_archive/*.html)",
+      "Bash(open /Users/home/Documents/Porsche-WBT-CC08/scripts/hotspot-picker.html)",
+      "Bash(git -C /Users/home/Documents/Porsche-WBT-CC08 status --short)",
+      "Bash(git -C /Users/home/Documents/Porsche-WBT-CC08 remote -v)"
     ],
     "additionalDirectories": [
       "G:\\My Drive\\00-Projects\\CC02\\course\\assets\\vendor",
