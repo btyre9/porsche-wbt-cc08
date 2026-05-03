@@ -178,11 +178,70 @@
     }
 
     .tab-panel__body {
-      font-size: var(--pds-font-size-md);
+      font-size: 20px;
       line-height: 1.65;
       color: var(--pds-contrast-high);
       margin: 0;
-      max-width: 900px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Decorative step number — large faint numeral behind the body text */
+    .tab-panel__step-num {
+      position: absolute;
+      bottom: -24px;
+      right: -10px;
+      font-size: 240px;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      color: rgba(255,255,255,0.038);
+      pointer-events: none;
+      user-select: none;
+      z-index: 0;
+    }
+
+    /* ── Step indicator (left panel) ─────────────────────────────────────── */
+    .step-indicator {
+      margin-top: 44px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 15px 0;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      opacity: 0.30;
+      transition: opacity 0.25s ease, color 0.25s ease;
+      cursor: default;
+    }
+
+    .step-item:last-child { border-bottom: 1px solid rgba(255,255,255,0.07); }
+
+    .step-item.is-active  { opacity: 1; cursor: pointer; }
+    .step-item.unlocked   { cursor: pointer; }
+    .step-item.unlocked:hover { opacity: 0.65; }
+
+    .step-num {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.10em;
+      color: rgba(255,255,255,0.35);
+      flex-shrink: 0;
+      width: 22px;
+      transition: color 0.25s ease;
+    }
+
+    .step-item.is-active .step-num { color: var(--pds-accent); }
+
+    .step-label {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--pds-text-primary);
+      letter-spacing: 0.01em;
     }
 
     /* ── Entrance animations ─────────────────────────────────────────────── */
@@ -287,6 +346,11 @@
       });
     }
 
+    /* Sync step indicator */
+    document.querySelectorAll('.step-item').forEach(function (item) {
+      item.classList.toggle('is-active', item.getAttribute('data-step') === label);
+    });
+
     /* Swap tab image with a brief fade */
     if (tabImg && TAB_IMAGE_MAP[label]) {
       tabImg.style.opacity = '0';
@@ -307,6 +371,39 @@
     }
   }
 
+  /* ── Build left-panel step indicator from tab data ──────────────────────── */
+  (function () {
+    var introEl = document.getElementById('el-intro');
+    if (!introEl || !buttons.length) return;
+    var container = document.createElement('nav');
+    container.className = 'step-indicator';
+    container.setAttribute('aria-label', 'Framework steps');
+    buttons.forEach(function (btn, i) {
+      var item = document.createElement('div');
+      item.className = 'step-item' + (i === 0 ? ' is-active' : '');
+      item.setAttribute('data-step', btn.getAttribute('data-tab'));
+      item.setAttribute('aria-hidden', 'true');
+      item.innerHTML =
+        '<span class="step-num">' + String(i + 1).padStart(2, '0') + '</span>' +
+        '<span class="step-label">' + (btn.textContent || btn.innerText).trim() + '</span>';
+      item.addEventListener('click', function () {
+        if (tabsLocked) return;
+        activateTab(btn);
+        btn.focus();
+      });
+      container.appendChild(item);
+    });
+    /* Fade the indicator in slightly after the intro text */
+    container.style.opacity = '0';
+    container.style.transform = 'translateY(14px)';
+    container.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+    setTimeout(function () {
+      container.style.opacity = '';
+      container.style.transform = '';
+    }, 480);
+    introEl.parentNode.insertBefore(container, introEl.nextSibling);
+  }());
+
   /* ── Declare required interactions so Next locks until all tabs visited ─── */
   var allTabIds = buttons.map(function (b) { return b.getAttribute('data-tab'); });
   window.parent.postMessage({
@@ -324,6 +421,10 @@
     if (!tabsLocked) return;
     tabsLocked = false;
     if (tabsNav) tabsNav.style.pointerEvents = '';
+    /* Make step items clickable */
+    document.querySelectorAll('.step-item').forEach(function (item) {
+      item.classList.add('unlocked');
+    });
     /* Show first tab content visually — audio plays only on explicit user click */
     if (buttons.length > 0) {
       var first = buttons[0];
@@ -373,6 +474,12 @@
     if (!e.data || e.data.type !== 'player-interaction-progress') return;
     var btn = buttons.find(function (b) { return b.getAttribute('data-tab') === e.data.id; });
     if (btn) btn.classList.add('visited');
+    /* Also dim visited step items to signal completion */
+    document.querySelectorAll('.step-item').forEach(function (item) {
+      if (item.getAttribute('data-step') === e.data.id) {
+        item.style.opacity = '0.55';
+      }
+    });
   });
 
 }());

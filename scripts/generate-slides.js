@@ -667,6 +667,7 @@ function buildTabButtonsHtml(triggers) {
 function buildTabPanelsHtml(triggers) {
   return triggers.map((t, i) =>
     `      <div class="tab-panel${i === 0 ? ' is-active' : ''}" id="panel-${escAttr(t.label)}" role="tabpanel">\n` +
+    `        <span class="tab-panel__step-num" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>\n` +
     `        <p class="tab-panel__body">${escHtml(t.body)}</p>\n` +
     `      </div>`
   ).join('\n');
