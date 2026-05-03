@@ -632,16 +632,28 @@ function extractTabTriggers(slide, slideId) {
   for (const [key] of Object.entries(slide)) {
     const m = key.match(/^Voiceover-TAB-(.+)$/);
     if (!m) continue;
-    const label = m[1];
-    const body  = slide[`Tab-Body-${label}`] || slide[key] || '';
+    const label    = m[1];
+    const body     = slide[`Tab-Body-${label}`]  || slide[key] || '';
+    const imgFile  = slide[`Tab-Image-${label}`] || '';
+    const imagePath = imgFile
+      ? `../assets/images/${imgFile}`
+      : '../assets/images/placeholder.webp';
     triggers.push({
       label,
-      title:     camelToWords(label),
+      title: camelToWords(label),
       body,
+      imagePath,
       audioPath: `../assets/audio/vo/${slideId}${sep}TAB${sep}${label}.mp3`,
     });
   }
   return triggers;
+}
+
+function buildTabImageMap(triggers) {
+  const entries = triggers.map(t =>
+    `  ${JSON.stringify(t.label)}: ${JSON.stringify(t.imagePath)}`
+  );
+  return '{\n' + entries.join(',\n') + '\n}';
 }
 
 function buildTabButtonsHtml(triggers) {
@@ -787,6 +799,8 @@ function buildTokens(slide, allSlides, courseTitle, templateHtml) {
     TABS_HTML:         buildTabButtonsHtml(tabs),
     TAB_PANELS_HTML:   buildTabPanelsHtml(tabs),
     TAB_AUDIO_MAP:     buildTabAudioMap(tabs),
+    TAB_IMAGE_MAP:     buildTabImageMap(tabs),
+    TAB_FIRST_IMAGE:   tabs.length ? tabs[0].imagePath : '../assets/images/placeholder.webp',
     TOTAL_TABS:        String(tabs.length || 3),
     // KC / FQ per-option tokens
     QUESTION_TEXT:        escHtml(slide['Question'] || ''),

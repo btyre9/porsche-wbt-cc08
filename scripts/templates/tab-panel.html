@@ -66,25 +66,55 @@
       margin: 0;
     }
 
-    /* ── Right panel — tab interface ─────────────────────────────────────── */
+    /* ── Right panel — tab interface + image ────────────────────────────── */
     .right-panel {
       flex: 1;
       height: 920px;
       background: #111116;
       display: flex;
-      flex-direction: column;
-      padding: 72px 100px 72px 80px;
+      flex-direction: row;
       position: relative;
       overflow: hidden;
     }
 
-    .right-panel::before {
+    /* Tab nav + content column */
+    .tab-content-col {
+      width: 740px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 72px 60px 72px 80px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Image column */
+    .tab-image-col {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tab-image-col img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: opacity 0.35s ease;
+    }
+
+    /* Left-edge scrim so text column blends into the image */
+    .tab-image-col::before {
       content: '';
       position: absolute;
-      top: -100px; right: -60px;
-      width: 500px; height: 500px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(213,0,28,0.06) 0%, transparent 70%);
+      inset: 0;
+      background: linear-gradient(to right,
+        #111116 0%,
+        rgba(17,17,22,0.55) 18%,
+        rgba(17,17,22,0.10) 45%,
+        transparent 70%
+      );
+      z-index: 1;
       pointer-events: none;
     }
 
@@ -181,13 +211,18 @@
     <p class="intro-text anim-block" id="el-intro">{{ON_SCREEN_TEXT}}</p>
   </div>
 
-  <!-- Right: tab interface -->
+  <!-- Right: tab interface + image -->
   <div class="right-panel">
-    <div class="tabs-nav" id="tabs-nav" role="tablist">
+    <div class="tab-content-col">
+      <div class="tabs-nav" id="tabs-nav" role="tablist">
 {{TABS_HTML}}
-    </div>
-    <div class="tabs-content">
+      </div>
+      <div class="tabs-content">
 {{TAB_PANELS_HTML}}
+      </div>
+    </div>
+    <div class="tab-image-col" id="tab-image-col">
+      <img id="tab-image" src="{{TAB_FIRST_IMAGE}}" alt="" draggable="false">
     </div>
   </div>
 
@@ -215,6 +250,10 @@
       tabsNav.style.transform = '';
     }, 320);
   }
+
+  /* ── Tab image map ─────────────────────────────────────────────────────── */
+  var TAB_IMAGE_MAP = {{TAB_IMAGE_MAP}};
+  var tabImg = document.getElementById('tab-image');
 
   /* ── Tab switching ─────────────────────────────────────────────────────── */
   var buttons = Array.from(document.querySelectorAll('.tab-btn'));
@@ -248,6 +287,15 @@
       });
     }
 
+    /* Swap tab image with a brief fade */
+    if (tabImg && TAB_IMAGE_MAP[label]) {
+      tabImg.style.opacity = '0';
+      setTimeout(function () {
+        tabImg.src = TAB_IMAGE_MAP[label];
+        tabImg.style.opacity = '';
+      }, 180);
+    }
+
     if (audio) {
       window.parent.postMessage({
         type: 'sandbox-play-interaction',
@@ -258,6 +306,15 @@
       }, '*');
     }
   }
+
+  /* ── Declare required interactions so Next locks until all tabs visited ─── */
+  var allTabIds = buttons.map(function (b) { return b.getAttribute('data-tab'); });
+  window.parent.postMessage({
+    type: 'sandbox-configure-interactions',
+    requiredIds: allTabIds,
+    finalCueSrc: 'assets/audio/vo/Click_Next.mp3',
+    lockNextUntilComplete: true
+  }, '*');
 
   /* ── INTRO lock: tabs disabled until player signals VO complete ─────────── */
   var tabsLocked = true;
@@ -309,6 +366,13 @@
         prev.focus();
       }
     });
+  });
+
+  /* Mark tabs visited from player progress messages */
+  window.addEventListener('message', function (e) {
+    if (!e.data || e.data.type !== 'player-interaction-progress') return;
+    var btn = buttons.find(function (b) { return b.getAttribute('data-tab') === e.data.id; });
+    if (btn) btn.classList.add('visited');
   });
 
 }());
