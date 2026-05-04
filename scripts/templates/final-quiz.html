@@ -171,9 +171,28 @@
       setTimeout(function () { window.parent.postMessage({ type: 'sandbox-next', correct: isCorrect }, '*'); }, 250);
     }
 
+    /* ── INTRO lock: options disabled until player signals VO complete ──────── */
+    var interactionsLocked = true;
+    var optionsList = document.getElementById('options-list');
+    if (optionsList) { optionsList.style.pointerEvents = 'none'; optionsList.style.filter = 'brightness(0.5)'; optionsList.style.transition = 'filter 0.4s ease'; }
+
+    function unlockInteractions() {
+      if (!interactionsLocked) return;
+      interactionsLocked = false;
+      if (optionsList) { optionsList.style.pointerEvents = ''; optionsList.style.filter = ''; }
+    }
+
+    var _introMsgReceived = false;
+    window.addEventListener('message', function (e) {
+      if (!e.data || e.data.type !== 'player-intro-state') return;
+      _introMsgReceived = true;
+      if (!e.data.locked) unlockInteractions();
+    });
+    setTimeout(function () { if (!_introMsgReceived) unlockInteractions(); }, 300);
+
     rows.forEach(function (row) {
-      row.addEventListener('click', function () { selectOption(row); });
-      row.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectOption(row); } });
+      row.addEventListener('click', function () { if (interactionsLocked) return; selectOption(row); });
+      row.addEventListener('keydown', function (e) { if (interactionsLocked) return; if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectOption(row); } });
     });
     submitBtn.addEventListener('click', handleSubmit);
     submitBtn.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSubmit(); } });

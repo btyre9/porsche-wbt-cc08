@@ -11,7 +11,10 @@
       "Bash(rm /Users/home/Documents/Porsche-WBT-CC08/course/slides_archive/*.html)",
       "Bash(open /Users/home/Documents/Porsche-WBT-CC08/scripts/hotspot-picker.html)",
       "Bash(git -C /Users/home/Documents/Porsche-WBT-CC08 status --short)",
-      "Bash(git -C /Users/home/Documents/Porsche-WBT-CC08 remote -v)"
+      "Bash(git -C /Users/home/Documents/Porsche-WBT-CC08 remote -v)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)"
     ],
     "additionalDirectories": [
       "G:\\My Drive\\00-Projects\\CC02\\course\\assets\\vendor",

@@ -153,9 +153,20 @@ The progress bar is a 3px red line spanning the full width of the top bar, flush
 ## Part 6 — Interaction Locks
 
 ### I1 — INTRO lock: all interactions disabled while INTRO plays
-Cards, tabs, and all clickable interaction elements are disabled while the slide's INTRO audio is playing. The player drops `sandbox-play-interaction` messages while `state.nextLockedByAudio` is true.
+**This rule applies to every template that has any clickable element — including knowledge-check, final-quiz, and all interactive content slides.** No exceptions.
 
-Templates must start interaction elements in a locked state (CSS `pointer-events: none`, visually dimmed) and unlock only when the `player-intro-state: { locked: false }` message arrives from the player. Always include a standalone fallback to unlock immediately when no player is present.
+Cards, tabs, option rows, drag items, hotspot markers, and all clickable interaction elements are disabled while the slide's INTRO audio is playing. The player drops `sandbox-play-interaction` messages while `state.nextLockedByAudio` is true.
+
+Templates must start interaction elements in a locked state (CSS `pointer-events: none`, optionally `filter: brightness(0.5)` for visual feedback) and unlock only when the `player-intro-state: { locked: false }` message arrives from the player. Always include a standalone fallback to unlock immediately when no player is present.
+
+**Templates confirmed compliant as of this module:**
+- `card-explore` — tile row locked
+- `tab-panel` — tabs-nav locked
+- `drag-match` — items and targets locked
+- `hotspot` — marker container locked
+- `tile-explore` — tile row locked
+- `knowledge-check` — options list locked
+- `final-quiz` — options list locked
 
 ### I2 — Next button locked during INTRO VO
 The Next button is disabled for the duration of INTRO audio playback.
@@ -266,7 +277,7 @@ Use this checklist when starting from scratch on a new module.
 **Review**
 - [ ] Every slide shows finished content (no placeholders)
 - [ ] INTRO audio plays on each slide load
-- [ ] Interaction elements are locked during INTRO, unlock after
+- [ ] Interaction elements locked during INTRO on **every** interactive slide — cards, tabs, tiles, drag items, hotspots, KC options, FQ options
 - [ ] Next locks during INTRO and while interactions are incomplete
 - [ ] Next unlocks and pulses simultaneously with `Click_Next.mp3`
 - [ ] Mute button silences all audio including interaction clips
